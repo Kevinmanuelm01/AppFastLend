@@ -1,5 +1,5 @@
 {
-  "name": "react-native-typescript-template-softx0",
+  "name": "react-native-typescript-template",
   "version": "1.0.0",
   "description": "React Native TypeScript Template - Professional template with scalable architecture and modern development practices",
   "private": true,
@@ -19,7 +19,7 @@
     "ios:simulator": "npx react-native run-ios --simulator=\"iPhone 16\"",
     "ios:simulator-pro": "npx react-native run-ios --simulator=\"iPhone 16 Pro\"",
     "ios:simulator-max": "npx react-native run-ios --simulator=\"iPhone 16 Pro Max\"",
-    "ios:clean": "cd ios && xcodebuild clean -workspace reactNativeTemplateSoftx0.xcworkspace -scheme reactNativeTemplateSoftx0 && cd ..",
+    "ios:clean": "cd ios && xcodebuild clean -workspace reactNativeTemplate.xcworkspace -scheme reactNativeTemplate && cd ..",
     "ios:setup": "npm run ios:uninstaller && npm run ios:installer && npm run build:ios",
     "ios:installer": "npm install && cd ios && pod setup && pod install --repo-update && pod update",
     "ios:uninstaller": "watchman watch-del-all && npm cache clean --force && rm -rf node_modules/ && rm -f package-lock.json && cd ios && rm -rf Pods Podfile.lock build assets main.jsbundle && pod deintegrate && rm -rf ~/Library/Caches/CocoaPods && rm -rf ~/Library/Developer/Xcode/DerivedData/*",
@@ -28,7 +28,7 @@
     "pod-install": "cd ios && pod install",
     "pod-update": "cd ios && pod update",
     "build:ios": "npx react-native bundle --entry-file ./index.js --bundle-output ios/main.jsbundle --dev=false --platform='ios' --assets-dest='./ios'",
-    "build:ios-release": "cd ios && xcodebuild -workspace reactNativeTemplateSoftx0.xcworkspace -scheme reactNativeTemplateSoftx0 -configuration Release -destination generic/platform=iOS clean archive",
+    "build:ios-release": "cd ios && xcodebuild -workspace reactNativeTemplate.xcworkspace -scheme reactNativeTemplate -configuration Release -destination generic/platform=iOS clean archive",
     "// ════════════════════════════════════════════════════════════": "",
     "// 🤖 ANDROID - DESARROLLO": "",
     "// ═══════════════════════════════════════════════════════════": "",
@@ -189,8 +189,7 @@
     "react-native-svg": "^15.9.0",
     "react-native-svg-transformer": "^1.5.0",
     "react-test-renderer": "18.3.1",
-    "typescript": "^5.9.2",
-    "watchman": "^4.9.0"
+    "typescript": "^5.9.2"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -204,6 +203,5 @@
   "engines": {
     "node": ">=20"
   },
-  "packageManager": "yarn@3.6.4",
   "main": "index.js"
 }

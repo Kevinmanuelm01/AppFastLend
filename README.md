@@ -1,4 +1,4 @@
-# 📱 React Native TypeScript Template - Softx0
+# 📱 React Native TypeScript Template
 
 Una plantilla moderna y completa de React Native con TypeScript, actualizada con las últimas versiones estables y mejores prácticas de desarrollo.
 
