@@ -6,6 +6,9 @@ export * from './auth';
 // Empresas
 export * from './company';
 
+// Clientes
+export * from './client';
+
 // TODO: Agregar más módulos de tipos aquí
 // export * from './loans';
 // export * from './payments';

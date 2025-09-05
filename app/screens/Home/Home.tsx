@@ -175,6 +175,24 @@ export function HomeScreen() {
             />
           </ModernCard>
 
+          <ModernCard variant="outlined" style={styles.actionCard}>
+            <View style={styles.actionContent}>
+              <Text style={styles.actionIcon}>👥</Text>
+              <View style={styles.actionText}>
+                <Text style={styles.actionTitle}>Gestión de Clientes</Text>
+                <Text style={styles.actionDescription}>
+                  Administrar perfiles y datos de clientes
+                </Text>
+              </View>
+            </View>
+            <ModernButton
+              title="Ver Clientes"
+              onPress={() => navigation.navigate('Clients')}
+              variant="primary"
+              size="md"
+            />
+          </ModernCard>
+
           <ModernCard variant="filled" style={styles.actionCard}>
             <View style={styles.actionContent}>
               <Text style={styles.actionIcon}>🚪</Text>
