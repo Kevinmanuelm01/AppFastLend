@@ -4,6 +4,7 @@ import { View, Text, StyleSheet, Alert, ScrollView, KeyboardAvoidingView, Platfo
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { MainNavigatorParamList } from '../../constants/RoutesDefault';
+
 import Button from '../../components/Button/Button';
 import Input from '../../components/Button/Input';
 import { isValidEmail } from '../../utils';
