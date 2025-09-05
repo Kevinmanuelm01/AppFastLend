@@ -4,31 +4,32 @@ export const ROUTES = {
   LOGIN: 'LoginScreen',
   REGISTER: 'RegisterScreen',
   FORGOT_PASSWORD: 'ForgotPasswordScreen',
-  
+
   // Main Stack
   HOME: 'HomeScreen',
+  DASHBOARD: 'DashboardScreen',
   PROFILE: 'ProfileScreen',
   SETTINGS: 'SettingsScreen',
-  
+
   // Company Stack
   COMPANY_REGISTRATION: 'CompanyRegistration',
   COMPANY_LIST: 'CompanyList',
   COMPANY_DETAILS: 'CompanyDetails',
   COMPANY_EDIT: 'CompanyEdit',
-  
+
   // Client Stack
   CLIENT_LIST: 'ClientList',
   CLIENT_DETAILS: 'ClientDetails',
   CLIENT_CREATE: 'ClientCreate',
   CLIENT_EDIT: 'ClientEdit',
   CLIENT_BANK_ACCESS: 'ClientBankAccess',
-  
+
   // Tab Navigation
   TAB_HOME: 'TabHome',
   TAB_SEARCH: 'TabSearch',
   TAB_NOTIFICATIONS: 'TabNotifications',
   TAB_PROFILE: 'TabProfile',
-  
+
   // Modal Screens
   MODAL_EXAMPLE: 'ModalExample',
 } as const;
@@ -47,20 +48,21 @@ export type RootStackParamList = {
   LoginScreen: undefined;
   RegisterScreen: undefined;
   ForgotPasswordScreen: undefined;
-  
+
   // Main Stack
   Main: undefined;
   HomeScreen: undefined;
+  DashboardScreen: undefined;
   ProfileScreen: { userId?: string };
   SettingsScreen: undefined;
-  
+
   // Company Stack
   Company: undefined;
   CompanyRegistration: undefined;
   CompanyList: undefined;
   CompanyDetails: { companyId: string };
   CompanyEdit: { companyId: string };
-  
+
   // Modal Screens
   ModalExample: { title: string; data?: any };
 };
@@ -74,4 +76,4 @@ export type MainNavigatorParamList = {
 
 // Tipos para TypeScript
 export type RouteNames = keyof typeof ROUTES;
-export type RouteValues = typeof ROUTES[RouteNames];
+export type RouteValues = (typeof ROUTES)[RouteNames];

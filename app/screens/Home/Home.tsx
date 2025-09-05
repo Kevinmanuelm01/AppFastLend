@@ -77,142 +77,124 @@ export function HomeScreen() {
   return (
     <>
       <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <ScrollView
-        contentContainerStyle={styles.scrollContainer}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <View style={styles.headerContainer}>
-          <View style={styles.welcomeSection}>
-            <Text style={styles.welcomeEmoji}>👋</Text>
-            <Text style={styles.title}>
-              ¡Bienvenido{user ? `, ${user.firstName}` : ''}!
-            </Text>
-            <Text style={styles.subtitle}>AppFastLend</Text>
-            <Text style={styles.description}>
-              Tu plataforma de préstamos rápida y segura
-            </Text>
-            
-            {/* 👤 Información del usuario */}
-            {user && (
-              <View style={styles.userInfo}>
-                <Text style={styles.userRole}>
-                  {user.role === 'ADMIN' ? '👑 Administrador' :
-                   user.role === 'CLIENT' ? '👤 Cliente' :
-                   user.role === 'ACCOUNTING' ? '💰 Contabilidad' :
-                   user.role === 'CUSTOMER_SERVICE' ? '🎧 Servicio al Cliente' :
-                   '👤 Usuario'}
-                </Text>
-                <Text style={styles.userEmail}>{user.email}</Text>
-              </View>
-            )}
-          </View>
-        </View>
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.headerContainer}>
+            <View style={styles.welcomeSection}>
+              <Text style={styles.welcomeEmoji}>👋</Text>
+              <Text style={styles.title}>
+                ¡Bienvenido{user ? `, ${user.firstName}` : ''}!
+              </Text>
+              <Text style={styles.subtitle}>AppFastLend</Text>
+              <Text style={styles.description}>
+                Tu plataforma de préstamos rápida y segura
+              </Text>
 
-        <ModernCard variant="elevated" style={styles.loginCard}>
-          <View style={styles.cardHeader}>
-            <Text style={styles.cardTitle}>Iniciar Sesión</Text>
-            <Text style={styles.cardSubtitle}>
-              Accede a tu cuenta para continuar
-            </Text>
+              {/* 👤 Información del usuario */}
+              {user && (
+                <View style={styles.userInfo}>
+                  <Text style={styles.userRole}>
+                    {user.role === 'ADMIN' ? '👑 Administrador' :
+                      user.role === 'CLIENT' ? '👤 Cliente' :
+                        user.role === 'ACCOUNTING' ? '💰 Contabilidad' :
+                          user.role === 'CUSTOMER_SERVICE' ? '🎧 Servicio al Cliente' :
+                            '👤 Usuario'}
+                  </Text>
+                  <Text style={styles.userEmail}>{user.email}</Text>
+                </View>
+              )}
+            </View>
           </View>
 
-          <View style={styles.formContainer}>
-            <AuthInput
-              label="Email"
-              placeholder="tu@email.com"
-              value={email}
-              onChangeText={setEmail}
-              error={emailError}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              leftIcon={<Text style={styles.inputIcon}>📧</Text>}
-            />
+          <ModernCard variant="elevated" style={styles.loginCard}>
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardTitle}>Iniciar Sesión</Text>
+              <Text style={styles.cardSubtitle}>
+                Accede a tu cuenta para continuar
+              </Text>
+            </View>
 
-            <AuthInput
-              label="Contraseña"
-              placeholder="Tu contraseña"
-              value={password}
-              onChangeText={setPassword}
-              error={passwordError}
-              isPassword
-              leftIcon={<Text style={styles.inputIcon}>🔒</Text>}
-            />
+            <View style={styles.formContainer}>
+              <AuthInput
+                label="Email"
+                placeholder="tu@email.com"
+                value={email}
+                onChangeText={setEmail}
+                error={emailError}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                leftIcon={<Text style={styles.inputIcon}>📧</Text>}
+              />
 
-            <ModernButton
-              title={isLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
-              onPress={handleLogin}
-              variant="primary"
-              size="lg"
-              isLoading={isLoading}
-              isDisabled={isLoading}
-              fullWidth
-              style={styles.loginButton}
-            />
+              <AuthInput
+                label="Contraseña"
+                placeholder="Tu contraseña"
+                value={password}
+                onChangeText={setPassword}
+                error={passwordError}
+                isPassword
+                leftIcon={<Text style={styles.inputIcon}>🔒</Text>}
+              />
+
+              <ModernButton
+                title={isLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
+                onPress={handleLogin}
+                variant="primary"
+                size="lg"
+                isLoading={isLoading}
+                isDisabled={isLoading}
+                fullWidth
+                style={styles.loginButton}
+              />
+            </View>
+          </ModernCard>
+
+          <View style={styles.actionsContainer}>
+            <ModernCard variant="outlined" style={styles.actionCard}>
+              <View style={styles.actionContent}>
+                <Text style={styles.actionIcon}>👥</Text>
+                <View style={styles.actionText}>
+                  <Text style={styles.actionTitle}>Gestión de Clientes</Text>
+                  <Text style={styles.actionDescription}>
+                    Administrar perfiles y datos de clientes
+                  </Text>
+                </View>
+              </View>
+              <ModernButton
+                title="Ver Clientes"
+                onPress={() => navigation.navigate('Clients')}
+                variant="primary"
+                size="md"
+              />
+            </ModernCard>
+
+            <ModernCard variant="filled" style={styles.actionCard}>
+              <View style={styles.actionContent}>
+                <Text style={styles.actionIcon}>🚪</Text>
+                <View style={styles.actionText}>
+                  <Text style={styles.actionTitle}>Cerrar Sesión</Text>
+                  <Text style={styles.actionDescription}>
+                    Salir de la aplicación de forma segura
+                  </Text>
+                </View>
+              </View>
+              <ModernButton
+                title="Cerrar Sesión"
+                onPress={logout}
+                variant="ghost"
+                size="md"
+              />
+            </ModernCard>
           </View>
-        </ModernCard>
-
-        <View style={styles.actionsContainer}>
-          <ModernCard variant="outlined" style={styles.actionCard}>
-            <View style={styles.actionContent}>
-              <Text style={styles.actionIcon}>🏢</Text>
-              <View style={styles.actionText}>
-                <Text style={styles.actionTitle}>Registrar Empresa</Text>
-                <Text style={styles.actionDescription}>
-                  Registra tu empresa para acceder a préstamos
-                </Text>
-              </View>
-            </View>
-            <ModernButton
-              title="Registrar"
-              onPress={() => navigation.navigate('Company')}
-              variant="outline"
-              size="md"
-            />
-          </ModernCard>
-
-          <ModernCard variant="outlined" style={styles.actionCard}>
-            <View style={styles.actionContent}>
-              <Text style={styles.actionIcon}>👥</Text>
-              <View style={styles.actionText}>
-                <Text style={styles.actionTitle}>Gestión de Clientes</Text>
-                <Text style={styles.actionDescription}>
-                  Administrar perfiles y datos de clientes
-                </Text>
-              </View>
-            </View>
-            <ModernButton
-              title="Ver Clientes"
-              onPress={() => navigation.navigate('Clients')}
-              variant="primary"
-              size="md"
-            />
-          </ModernCard>
-
-          <ModernCard variant="filled" style={styles.actionCard}>
-            <View style={styles.actionContent}>
-              <Text style={styles.actionIcon}>🚪</Text>
-              <View style={styles.actionText}>
-                <Text style={styles.actionTitle}>Cerrar Sesión</Text>
-                <Text style={styles.actionDescription}>
-                  Salir de la aplicación de forma segura
-                </Text>
-              </View>
-            </View>
-            <ModernButton
-              title="Cerrar Sesión"
-              onPress={logout}
-              variant="ghost"
-              size="md"
-            />
-          </ModernCard>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </>
   );
 }

@@ -10,6 +10,7 @@ import {
   Alert,
   Dimensions,
   TextInput,
+  ScrollView,
 } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -221,7 +222,12 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
         {/* 🎨 Header con logo */}
         <View style={styles.header}>
           <View style={styles.logoContainer}>
@@ -342,17 +348,29 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        {/* 🔗 Link a registro */}
+        {/* 🔗 Links de registro */}
         <View style={styles.registerFooter}>
-          <Text style={styles.registerFooterText}>¿Eres nuevo? </Text>
           <TouchableOpacity
             onPress={navigateToRegister}
             activeOpacity={0.7}
+            style={styles.registerButton}
           >
-            <Text style={styles.registerLink}>Crear cuenta</Text>
+            <Text style={styles.registerButtonText}>¿Eres nuevo? Crear cuenta</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => {
+              // Navegar a Company usando el navigator principal
+              // @ts-ignore - Company está en el MainNavigator
+              navigation.getParent()?.navigate('Company');
+            }}
+            activeOpacity={0.7}
+            style={styles.companyButton}
+          >
+            <Text style={styles.companyButtonText}>🏢 Registrar Empresa</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -363,58 +381,62 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f8f9fa', // Fondo gris claro como en la imagen
   },
-  content: {
+  scrollView: {
     flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
     paddingHorizontal: 20,
-    justifyContent: 'center',
+    paddingBottom: 20,
   },
   header: {
     alignItems: 'center',
-    marginBottom: 32,
+    marginTop: 20,
+    marginBottom: 24,
   },
   logoContainer: {
-    marginBottom: 20,
+    marginBottom: 16,
   },
   logo: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     backgroundColor: '#1e3a8a', // Azul oscuro como en la imagen
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: 2,
     },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
   logoInner: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     backgroundColor: '#ffffff',
   },
   appName: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#1f2937', // Gris oscuro
-    marginBottom: 8,
+    marginBottom: 6,
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#6b7280', // Gris medio
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 20,
   },
   card: {
     backgroundColor: '#ffffff',
     borderRadius: 16,
-    padding: 24,
-    marginBottom: 24,
+    padding: 20,
+    marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -489,18 +511,38 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   registerFooter: {
-    flexDirection: 'row',
-    justifyContent: 'center',
     alignItems: 'center',
+    marginTop: 20,
+    gap: 12,
+    paddingBottom: 20,
   },
-  registerFooterText: {
-    fontSize: 14,
-    color: '#6b7280',
+  registerButton: {
+    paddingVertical: 14,
+    paddingHorizontal: 32,
+    borderRadius: 12,
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: COLORS.primary,
+    minWidth: 200,
   },
-  registerLink: {
-    fontSize: 14,
-    color: '#1e3a8a',
+  registerButtonText: {
+    fontSize: 16,
+    color: COLORS.primary,
     fontWeight: '600',
+    textAlign: 'center',
+  },
+  companyButton: {
+    paddingVertical: 14,
+    paddingHorizontal: 32,
+    borderRadius: 12,
+    backgroundColor: COLORS.primary,
+    minWidth: 200,
+  },
+  companyButtonText: {
+    fontSize: 16,
+    color: '#ffffff',
+    fontWeight: '600',
+    textAlign: 'center',
   },
   errorContainer: {
     flexDirection: 'row',

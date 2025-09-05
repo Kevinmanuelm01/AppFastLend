@@ -2,6 +2,7 @@ import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { HomeScreen } from '../screens/Home/Home';
+import { DashboardScreen } from '../screens/Dashboard';
 import { AuthNavigator } from './AuthNavigator';
 import { CompanyNavigator } from './CompanyNavigator';
 import { ClientNavigator } from './ClientNavigator';
@@ -34,6 +35,7 @@ function Routes() {
             {user ? (
               // Usuario autenticado - Mostrar pantallas principales
               <>
+                <Stack.Screen name="Dashboard" component={DashboardScreen} />
                 <Stack.Screen name="Main" component={HomeScreen} />
                 <Stack.Screen name="Company" component={CompanyNavigator} />
                 <Stack.Screen name="Clients" component={ClientNavigator} />
