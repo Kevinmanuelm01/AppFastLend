@@ -10,6 +10,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
+  Animated,
+  Dimensions,
 } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -31,6 +33,9 @@ import {
   CompanySize,
   CompanyStackParamList,
 } from '../../types/company';
+
+// 📱 Obtener dimensiones de pantalla
+const { width: screenWidth } = Dimensions.get('window');
 
 // 🎯 Tipo de navegación
 type CompanyRegisterScreenNavigationProp = NativeStackNavigationProp<
@@ -211,6 +216,8 @@ export const CompanyRegisterScreen: React.FC = () => {
   const { registerCompany, isLoading, error } = useCompany();
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 5;
+  const [fadeAnim] = useState(new Animated.Value(0));
+  const [slideAnim] = useState(new Animated.Value(50));
 
   // 📋 Configuración del formulario
   const {
@@ -251,6 +258,22 @@ export const CompanyRegisterScreen: React.FC = () => {
   // 👀 Observar el tipo de empresa seleccionado
   const selectedCompanyType = watch('companyType');
 
+  // 🎭 Animación de entrada
+  React.useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [currentStep]);
+
   // 📝 Manejar envío del formulario
   const onSubmit = async (data: CompanyRegistrationData) => {
     try {
@@ -280,29 +303,108 @@ export const CompanyRegisterScreen: React.FC = () => {
     const isValid = await trigger();
     
     if (isValid && currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1);
+      // Animación de salida y entrada
+      Animated.sequence([
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 50,
+          duration: 0,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        setCurrentStep(currentStep + 1);
+        Animated.parallel([
+          Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 400,
+            useNativeDriver: true,
+          }),
+          Animated.timing(slideAnim, {
+            toValue: 0,
+            duration: 400,
+            useNativeDriver: true,
+          }),
+        ]).start();
+      });
     }
   };
 
   const prevStep = () => {
     if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
+      Animated.sequence([
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: -50,
+          duration: 0,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        setCurrentStep(currentStep - 1);
+        Animated.parallel([
+          Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 400,
+            useNativeDriver: true,
+          }),
+          Animated.timing(slideAnim, {
+            toValue: 0,
+            duration: 400,
+            useNativeDriver: true,
+          }),
+        ]).start();
+      });
     }
   };
 
   // 🎨 Renderizar indicador de progreso
   const renderProgressIndicator = () => (
     <View style={styles.progressContainer}>
-      <Text style={styles.progressText}>
-        Paso {currentStep} de {totalSteps}
-      </Text>
-      <View style={styles.progressBar}>
-        <View 
-          style={[
-            styles.progressFill,
-            { width: `${(currentStep / totalSteps) * 100}%` }
-          ]} 
-        />
+      <View style={styles.progressHeader}>
+        <Text style={styles.progressText}>
+          Paso {currentStep} de {totalSteps}
+        </Text>
+        <Text style={styles.progressPercentage}>
+          {Math.round((currentStep / totalSteps) * 100)}%
+        </Text>
+      </View>
+      
+      <View style={styles.progressBarContainer}>
+        <View style={styles.progressBar}>
+          <Animated.View 
+            style={[
+              styles.progressFill,
+              { width: `${(currentStep / totalSteps) * 100}%` }
+            ]} 
+          />
+        </View>
+      </View>
+      
+      {/* Indicadores de pasos */}
+      <View style={styles.stepIndicators}>
+        {Array.from({ length: totalSteps }, (_, index) => (
+          <View
+            key={index}
+            style={[
+              styles.stepDot,
+              index + 1 <= currentStep ? styles.stepDotActive : styles.stepDotInactive,
+            ]}
+          >
+            <Text style={[
+              styles.stepDotText,
+              index + 1 <= currentStep ? styles.stepDotTextActive : styles.stepDotTextInactive,
+            ]}>
+              {index + 1}
+            </Text>
+          </View>
+        ))}
       </View>
     </View>
   );
@@ -742,29 +844,49 @@ export const CompanyRegisterScreen: React.FC = () => {
 
   // 🎨 Renderizar contenido del paso actual
   const renderCurrentStep = () => {
-    switch (currentStep) {
-      case 1:
-        return renderStep1();
-      case 2:
-        return renderStep2();
-      case 3:
-        return renderStep3();
-      case 4:
-        return renderStep4();
-      case 5:
-        return renderStep5();
-      default:
-        return renderStep1();
-    }
+    return (
+      <Animated.View
+        style={[
+          styles.stepContentContainer,
+          {
+            opacity: fadeAnim,
+            transform: [{ translateY: slideAnim }],
+          },
+        ]}
+      >
+        {(() => {
+          switch (currentStep) {
+            case 1:
+              return renderStep1();
+            case 2:
+              return renderStep2();
+            case 3:
+              return renderStep3();
+            case 4:
+              return renderStep4();
+            case 5:
+              return renderStep5();
+            default:
+              return renderStep1();
+          }
+        })()}
+      </Animated.View>
+    );
   };
 
   // 🎨 Renderizar botones de navegación
   const renderNavigationButtons = () => (
     <View style={styles.navigationContainer}>
       {currentStep > 1 && (
-        <TouchableOpacity style={styles.backButton} onPress={prevStep}>
-          <Text style={styles.backButtonIcon}>‹</Text>
-          <Text style={styles.backButtonText}>Anterior</Text>
+        <TouchableOpacity 
+          style={styles.backButton} 
+          onPress={prevStep}
+          activeOpacity={0.8}
+        >
+          <View style={styles.backButtonContent}>
+            <Text style={styles.backButtonIcon}>←</Text>
+            <Text style={styles.backButtonText}>Anterior</Text>
+          </View>
         </TouchableOpacity>
       )}
       
@@ -772,7 +894,11 @@ export const CompanyRegisterScreen: React.FC = () => {
       
       {currentStep < totalSteps ? (
         <AuthButton
-          title="Siguiente"
+          title={
+            <Text style={styles.nextButtonText}>
+              Siguiente →
+            </Text>
+          }
           onPress={nextStep}
           style={styles.nextButton}
         />
@@ -782,6 +908,7 @@ export const CompanyRegisterScreen: React.FC = () => {
           onPress={handleSubmit(onSubmit)}
           isLoading={isLoading}
           style={styles.submitButton}
+          leftIcon={!isLoading && <Text style={styles.submitIcon}>✓</Text>}
         />
       )}
     </View>
@@ -797,7 +924,7 @@ export const CompanyRegisterScreen: React.FC = () => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <AuthCard>
+        <View style={styles.modernCard}>
           <View style={styles.header}>
             <TouchableOpacity 
               style={styles.backIcon}
@@ -807,7 +934,7 @@ export const CompanyRegisterScreen: React.FC = () => {
             </TouchableOpacity>
             
             <View style={styles.headerContent}>
-              <Text style={styles.title}>🏢 Registro de Empresa</Text>
+              <Text style={styles.title}>Registro de Empresa</Text>
               <Text style={styles.subtitle}>
                 Completa la información para registrar tu entidad
               </Text>
@@ -825,7 +952,7 @@ export const CompanyRegisterScreen: React.FC = () => {
 
           {renderCurrentStep()}
           {renderNavigationButtons()}
-        </AuthCard>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -835,7 +962,7 @@ export const CompanyRegisterScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: '#f8fafc',
   },
   scrollView: {
     flex: 1,
@@ -844,201 +971,349 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 20,
   },
+  modernCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 24,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 24,
+    elevation: 12,
+    borderWidth: 1,
+    borderColor: '#f1f5f9',
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 32,
+    paddingBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f5f9',
   },
   backIcon: {
-    marginRight: 15,
-    padding: 5,
+    marginRight: 16,
+    padding: 8,
+    borderRadius: 12,
+    backgroundColor: '#f8fafc',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
   },
   backIconText: {
-    fontSize: 24,
-    color: COLORS.text.primary,
+    fontSize: 20,
+    color: '#64748b',
+    fontWeight: '600',
   },
   headerContent: {
     flex: 1,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: COLORS.text.primary,
-    marginBottom: 5,
+    fontSize: 28,
+    fontWeight: '800',
+    color: '#0f172a',
+    marginBottom: 8,
+    letterSpacing: -0.5,
   },
   subtitle: {
-    fontSize: 16,
-    color: COLORS.text.secondary,
+    fontSize: 15,
+    color: '#64748b',
+    fontWeight: '500',
+    lineHeight: 22,
   },
   progressContainer: {
-    marginBottom: 30,
+    marginBottom: 40,
+  },
+  progressHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
   },
   progressText: {
+    fontSize: 16,
+    color: '#334155',
+    fontWeight: '600',
+  },
+  progressPercentage: {
     fontSize: 14,
-    color: COLORS.text.secondary,
-    marginBottom: 10,
-    textAlign: 'center',
+    color: '#3b82f6',
+    fontWeight: '700',
+    backgroundColor: '#eff6ff',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  progressBarContainer: {
+    marginBottom: 20,
   },
   progressBar: {
-    height: 4,
-    backgroundColor: COLORS.border,
-    borderRadius: 2,
+    height: 8,
+    backgroundColor: '#e2e8f0',
+    borderRadius: 8,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: COLORS.primary,
-    borderRadius: 2,
+    backgroundColor: '#3b82f6',
+    borderRadius: 8,
+    shadowColor: '#3b82f6',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+  stepIndicators: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 4,
+  },
+  stepDot: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+  },
+  stepDotActive: {
+    backgroundColor: '#3b82f6',
+    borderColor: '#3b82f6',
+  },
+  stepDotInactive: {
+    backgroundColor: '#ffffff',
+    borderColor: '#e2e8f0',
+  },
+  stepDotText: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  stepDotTextActive: {
+    color: '#ffffff',
+  },
+  stepDotTextInactive: {
+    color: '#94a3b8',
+  },
+  stepContentContainer: {
+    flex: 1,
   },
   stepContainer: {
-    marginBottom: 30,
+    marginBottom: 32,
   },
   stepTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: COLORS.text.primary,
-    marginBottom: 20,
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#0f172a',
+    marginBottom: 24,
     textAlign: 'center',
+    letterSpacing: -0.3,
   },
   selectorContainer: {
-    marginBottom: 20,
+    marginBottom: 24,
   },
   selectorTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.text.primary,
-    marginBottom: 12,
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#0f172a',
+    marginBottom: 16,
   },
   optionsContainer: {
-    gap: 12,
+    gap: 16,
   },
   optionButton: {
-    padding: 16,
-    borderRadius: 12,
+    padding: 20,
+    borderRadius: 16,
     borderWidth: 2,
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.surface,
+    borderColor: '#e2e8f0',
+    backgroundColor: '#ffffff',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   optionButtonSelected: {
-    borderColor: COLORS.primary,
-    backgroundColor: `${COLORS.primary}10`,
+    borderColor: '#3b82f6',
+    backgroundColor: '#eff6ff',
+    shadowColor: '#3b82f6',
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 4,
   },
   optionText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.text.primary,
-    marginBottom: 4,
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#0f172a',
+    marginBottom: 6,
   },
   optionTextSelected: {
-    color: COLORS.primary,
+    color: '#3b82f6',
   },
   optionDescription: {
-    fontSize: 14,
-    color: COLORS.text.secondary,
+    fontSize: 15,
+    color: '#64748b',
+    lineHeight: 20,
   },
   inputLabel: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: COLORS.text.primary,
-    marginBottom: 8,
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#0f172a',
+    marginBottom: 12,
   },
   pickerContainer: {
     flexDirection: 'row',
-    borderRadius: 8,
+    borderRadius: 12,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: COLORS.border,
+    borderWidth: 2,
+    borderColor: '#e2e8f0',
+    backgroundColor: '#ffffff',
   },
   pickerOption: {
     flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    backgroundColor: COLORS.surface,
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    backgroundColor: '#ffffff',
     alignItems: 'center',
   },
   pickerOptionSelected: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#3b82f6',
   },
   pickerText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: COLORS.text.primary,
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#334155',
   },
   pickerTextSelected: {
     color: '#FFFFFF',
   },
   summaryContainer: {
-    backgroundColor: `${COLORS.primary}10`,
-    padding: 16,
-    borderRadius: 12,
-    marginTop: 20,
+    backgroundColor: '#f0f9ff',
+    padding: 20,
+    borderRadius: 16,
+    marginTop: 24,
+    borderWidth: 1,
+    borderColor: '#bae6fd',
   },
   summaryTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.primary,
-    marginBottom: 8,
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#0369a1',
+    marginBottom: 12,
   },
   summaryText: {
-    fontSize: 14,
-    color: COLORS.text.secondary,
-    marginBottom: 8,
+    fontSize: 15,
+    color: '#475569',
+    marginBottom: 12,
+    lineHeight: 22,
   },
   summaryNote: {
-    fontSize: 12,
-    color: COLORS.text.secondary,
+    fontSize: 13,
+    color: '#64748b',
     fontStyle: 'italic',
+    lineHeight: 18,
   },
   navigationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 32,
+    gap: 16,
   },
   backButton: {
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: '#e2e8f0',
+    backgroundColor: '#ffffff',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  backButtonContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: COLORS.primary,
   },
   backButtonIcon: {
-    fontSize: 18,
-    color: COLORS.primary,
-    marginRight: 4,
+    fontSize: 16,
+    color: '#64748b',
+    marginRight: 8,
+    fontWeight: '600',
   },
   backButtonText: {
-    color: COLORS.primary,
-    fontSize: 16,
-    fontWeight: '500',
+    color: '#64748b',
+    fontSize: 15,
+    fontWeight: '600',
   },
   spacer: {
     flex: 1,
   },
   nextButton: {
     flex: 1,
-    marginLeft: 15,
+    borderRadius: 16,
+    shadowColor: '#3b82f6',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  nextButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '700',
   },
   submitButton: {
     flex: 1,
+    borderRadius: 16,
+    shadowColor: '#10b981',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 6,
+    backgroundColor: '#10b981',
+  },
+  submitIcon: {
+    color: '#ffffff',
+    fontSize: 18,
+    fontWeight: '700',
   },
   errorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fef2f2',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 20,
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: '#fecaca',
   },
   errorIcon: {
-    fontSize: 16,
-    marginRight: 8,
+    fontSize: 18,
+    marginRight: 12,
   },
   errorText: {
-    color: COLORS.error,
-    fontSize: 14,
+    color: '#dc2626',
+    fontSize: 15,
     flex: 1,
+    fontWeight: '500',
+    lineHeight: 20,
   },
 });
 
