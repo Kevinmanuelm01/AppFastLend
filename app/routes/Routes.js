@@ -1,19 +1,45 @@
-// In App.js in a new project
-
 import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { HomeScreen } from '../screens/Home/Home';
+import { AuthNavigator } from './AuthNavigator';
+import { CompanyNavigator } from './CompanyNavigator';
+import { useAuth } from '../contexts/AuthContextSimple';
+import { CompanyProvider } from '../contexts/CompanyContext';
+import { ActivityIndicator, View } from 'react-native';
+import { COLORS } from '../constants';
 
 const Stack = createNativeStackNavigator();
 
 function Routes() {
+  const { user, isLoading } = useAuth();
+
+  // Mostrar loading mientras se verifica el estado de autenticación
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.background }}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+      </View>
+    );
+  }
+
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="HomeScreen">
-        <Stack.Screen name="HomeScreen" component={HomeScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <CompanyProvider>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          {user ? (
+            // Usuario autenticado - Mostrar pantallas principales
+            <>
+              <Stack.Screen name="Main" component={HomeScreen} />
+              <Stack.Screen name="Company" component={CompanyNavigator} />
+            </>
+          ) : (
+            // Usuario no autenticado - Mostrar pantallas de autenticación
+            <Stack.Screen name="Auth" component={AuthNavigator} />
+          )}
+        </Stack.Navigator>
+      </NavigationContainer>
+    </CompanyProvider>
   );
 }
 

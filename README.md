@@ -1,6 +1,6 @@
-# 📱 React Native TypeScript Template
+# 🚀 AppFastLend
 
-Una plantilla moderna y completa de React Native con TypeScript, actualizada con las últimas versiones estables y mejores prácticas de desarrollo.
+Aplicación de préstamos rápida y segura construida con React Native y TypeScript, diseñada para ofrecer una experiencia de usuario excepcional en el sector financiero.
 
 ## ✨ Features
 

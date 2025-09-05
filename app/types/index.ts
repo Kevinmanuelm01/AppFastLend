@@ -1,3 +1,16 @@
+// 🎯 Exportaciones principales de tipos
+
+// Autenticación
+export * from './auth';
+
+// Empresas
+export * from './company';
+
+// TODO: Agregar más módulos de tipos aquí
+// export * from './loans';
+// export * from './payments';
+// export * from './notifications';
+
 // Tipos globales de la aplicación
 
 // Tipos de navegación
@@ -8,27 +21,7 @@ export type RootStackParamList = {
   SettingsScreen: undefined;
 };
 
-// Tipos de usuario
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  avatar?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-// Tipos de autenticación
-export interface LoginCredentials {
-  email: string;
-  password: string;
-}
-
-export interface AuthResponse {
-  user: User;
-  token: string;
-  refreshToken: string;
-}
+// Los tipos de usuario y autenticación se importan desde ./auth
 
 // Tipos de API
 export interface ApiResponse<T = any> {
@@ -79,7 +72,7 @@ export interface AppConfig {
 
 // Tipos de estado global (para Context API o Redux)
 export interface AppState {
-  user: User | null;
+  user: any | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   theme: 'light' | 'dark';

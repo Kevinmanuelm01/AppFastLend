@@ -1,12 +1,21 @@
-import { COLORS } from '@/constants';
+import { COLORS } from '../../constants';
 import * as React from 'react';
 import { View, Text, StyleSheet, Alert, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
-import Button from '@/components/Button/Button';
-import Input from '@/components/Button/Input';
-import { isValidEmail } from '@/utils';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { MainNavigatorParamList } from '../../constants/RoutesDefault';
+import Button from '../../components/Button/Button';
+import Input from '../../components/Button/Input';
+import { isValidEmail } from '../../utils';
+import { useAuth } from '../../contexts/AuthContextSimple';
+
+type HomeScreenNavigationProp = NativeStackNavigationProp<MainNavigatorParamList, 'Main'>;
 
 export function HomeScreen() {
   console.log('HomeScreen component rendered');
+
+  const navigation = useNavigation<HomeScreenNavigationProp>();
+  const { logout } = useAuth();
 
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
@@ -112,6 +121,18 @@ export function HomeScreen() {
             disabled={isLoading}
             style={styles.loginButton}
           />
+
+          <Button
+            title="🏢 Registrar Empresa"
+            onPress={() => navigation.navigate('Company')}
+            style={[styles.loginButton, styles.companyButton]}
+          />
+
+          <Button
+            title="🚪 Cerrar Sesión"
+            onPress={logout}
+            style={[styles.loginButton, styles.logoutButton]}
+          />
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -161,6 +182,14 @@ const styles = StyleSheet.create({
   },
   loginButton: {
     marginTop: 10,
+  },
+  companyButton: {
+    backgroundColor: COLORS.secondary,
+    marginTop: 15,
+  },
+  logoutButton: {
+    backgroundColor: COLORS.error,
+    marginTop: 15,
   },
 });
 

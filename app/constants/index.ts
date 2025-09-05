@@ -22,7 +22,7 @@ export { FONT_SIZES as TYPOGRAPHY } from '../assets/theme/Fonts';
 
 // Constantes adicionales que no requieren archivo separado
 export const APP_INFO = {
-  name: 'React Native TypeScript Template',
+  name: 'AppFastLend',
   version: '1.0.0',
   buildNumber: 1,
 } as const;

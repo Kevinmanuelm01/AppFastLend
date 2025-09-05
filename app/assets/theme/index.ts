@@ -1,6 +1,7 @@
 // Configuración del tema de la aplicación - Archivo principal de exportación
 
-import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
+import { COLORS, SPACING } from '../../constants';
+import { FONT_SIZES, FONT_WEIGHTS } from './Fonts';
 import type { ThemeColors } from '../../types';
 
 // Importar archivos de tema
@@ -56,26 +57,26 @@ export const commonStyles = {
 
   // Textos
   title: {
-    fontSize: TYPOGRAPHY.sizes.xxxl,
-    fontWeight: TYPOGRAPHY.weights.bold,
+    fontSize: FONT_SIZES.xxxl,
+    fontWeight: FONT_WEIGHTS.bold,
     color: lightTheme.text.primary,
     marginBottom: SPACING.sm,
   },
   subtitle: {
-    fontSize: TYPOGRAPHY.sizes.lg,
-    fontWeight: TYPOGRAPHY.weights.medium,
+    fontSize: FONT_SIZES.lg,
+    fontWeight: FONT_WEIGHTS.medium,
     color: lightTheme.text.secondary,
     marginBottom: SPACING.md,
   },
   body: {
-    fontSize: TYPOGRAPHY.sizes.md,
-    fontWeight: TYPOGRAPHY.weights.regular,
+    fontSize: FONT_SIZES.md,
+    fontWeight: FONT_WEIGHTS.regular,
     color: lightTheme.text.primary,
     lineHeight: 24,
   },
   caption: {
-    fontSize: TYPOGRAPHY.sizes.sm,
-    fontWeight: TYPOGRAPHY.weights.regular,
+    fontSize: FONT_SIZES.sm,
+    fontWeight: FONT_WEIGHTS.regular,
     color: lightTheme.text.light,
   },
 
@@ -97,8 +98,8 @@ export const commonStyles = {
     borderColor: lightTheme.border,
   },
   buttonText: {
-    fontSize: TYPOGRAPHY.sizes.md,
-    fontWeight: TYPOGRAPHY.weights.semibold,
+    fontSize: FONT_SIZES.md,
+    fontWeight: FONT_WEIGHTS.semibold,
   },
   buttonTextPrimary: {
     color: '#ffffff',
@@ -115,7 +116,7 @@ export const commonStyles = {
     borderRadius: 12,
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.sm + 2,
-    fontSize: TYPOGRAPHY.sizes.md,
+    fontSize: FONT_SIZES.md,
     color: lightTheme.text.primary,
     minHeight: 48,
   },
@@ -127,13 +128,13 @@ export const commonStyles = {
     borderColor: COLORS.error,
   },
   inputLabel: {
-    fontSize: TYPOGRAPHY.sizes.sm,
-    fontWeight: TYPOGRAPHY.weights.semibold,
+    fontSize: FONT_SIZES.sm,
+    fontWeight: FONT_WEIGHTS.semibold,
     color: lightTheme.text.primary,
     marginBottom: SPACING.xs,
   },
   inputErrorText: {
-    fontSize: TYPOGRAPHY.sizes.xs,
+    fontSize: FONT_SIZES.xs,
     color: COLORS.error,
     marginTop: SPACING.xs,
   },
