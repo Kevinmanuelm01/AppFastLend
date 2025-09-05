@@ -1,4 +1,4 @@
-// 🏢 Pantalla de Registro de Empresas - App de Préstamos
+// 🏢 Pantalla de Registro de Empresas - Versión mejorada
 
 import React, { useState } from 'react';
 import {
@@ -26,6 +26,7 @@ import { COLORS } from '../../constants';
 import {
   CompanyRegistrationData,
   CompanyType,
+  DocumentType,
   IndustryType,
   CompanySize,
   CompanyStackParamList,
@@ -39,22 +40,54 @@ type CompanyRegisterScreenNavigationProp = NativeStackNavigationProp<
 
 // 📋 Schema de validación con Yup
 const companyRegistrationSchema = yup.object().shape({
-  name: yup
+  companyType: yup
     .string()
-    .required('El nombre de la empresa es obligatorio')
-    .min(2, 'El nombre debe tener al menos 2 caracteres')
-    .max(100, 'El nombre no puede exceder 100 caracteres'),
+    .required('El tipo de entidad es obligatorio')
+    .oneOf(Object.values(CompanyType), 'Selecciona un tipo válido'),
+  
+  // Campos condicionales para Persona Jurídica
+  firstName: yup
+    .string()
+    .when('companyType', {
+      is: CompanyType.PERSONA_JURIDICA,
+      then: (schema) => schema.required('El nombre es obligatorio').min(2, 'Mínimo 2 caracteres'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+  
+  lastName: yup
+    .string()
+    .when('companyType', {
+      is: CompanyType.PERSONA_JURIDICA,
+      then: (schema) => schema.required('El apellido es obligatorio').min(2, 'Mínimo 2 caracteres'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+  
+  // Campos condicionales para Empresa Comercial
+  businessName: yup
+    .string()
+    .when('companyType', {
+      is: CompanyType.EMPRESA_COMERCIAL,
+      then: (schema) => schema.required('El nombre comercial es obligatorio').min(2, 'Mínimo 2 caracteres'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
   
   legalName: yup
     .string()
-    .required('La razón social es obligatoria')
-    .min(2, 'La razón social debe tener al menos 2 caracteres')
-    .max(150, 'La razón social no puede exceder 150 caracteres'),
+    .when('companyType', {
+      is: CompanyType.EMPRESA_COMERCIAL,
+      then: (schema) => schema.required('La razón social es obligatoria').min(2, 'Mínimo 2 caracteres'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
   
-  taxId: yup
+  documentType: yup
     .string()
-    .required('El RNC/Cédula es obligatorio')
-    .matches(/^[0-9]{9,11}$/, 'El RNC/Cédula debe tener entre 9 y 11 dígitos'),
+    .required('El tipo de documento es obligatorio')
+    .oneOf(Object.values(DocumentType), 'Selecciona un tipo válido'),
+  
+  documentNumber: yup
+    .string()
+    .required('El número de documento es obligatorio')
+    .min(8, 'Mínimo 8 caracteres'),
   
   email: yup
     .string()
@@ -71,19 +104,14 @@ const companyRegistrationSchema = yup.object().shape({
     .url('Ingresa una URL válida')
     .nullable(),
   
-  companyType: yup
-    .string()
-    .required('El tipo de empresa es obligatorio')
-    .oneOf(Object.values(CompanyType), 'Selecciona un tipo válido'),
-  
-  registrationNumber: yup
-    .string()
-    .required('El número de registro es obligatorio')
-    .min(5, 'El número de registro debe tener al menos 5 caracteres'),
-  
   registrationDate: yup
     .string()
     .required('La fecha de registro es obligatoria')
+    .matches(/^\d{4}-\d{2}-\d{2}$/, 'Formato de fecha inválido (YYYY-MM-DD)'),
+  
+  companyFoundationDate: yup
+    .string()
+    .required('La fecha de creación de la empresa es obligatoria')
     .matches(/^\d{4}-\d{2}-\d{2}$/, 'Formato de fecha inválido (YYYY-MM-DD)'),
   
   industry: yup
@@ -98,9 +126,9 @@ const companyRegistrationSchema = yup.object().shape({
   
   employeeCount: yup
     .number()
-    .required('El número de empleados es obligatorio')
     .min(1, 'Debe tener al menos 1 empleado')
-    .max(10000, 'Número de empleados muy alto'),
+    .max(10000, 'Número de empleados muy alto')
+    .nullable(),
   
   address: yup.object().shape({
     street: yup
@@ -131,34 +159,49 @@ const companyRegistrationSchema = yup.object().shape({
   
   annualRevenue: yup
     .number()
-    .required('Los ingresos anuales son obligatorios')
-    .min(0, 'Los ingresos no pueden ser negativos'),
+    .min(0, 'Los ingresos no pueden ser negativos')
+    .nullable(),
   
-  legalRepresentative: yup.object().shape({
-    firstName: yup
-      .string()
-      .required('El nombre del representante es obligatorio')
-      .min(2, 'El nombre debe tener al menos 2 caracteres'),
-    
-    lastName: yup
-      .string()
-      .required('El apellido del representante es obligatorio')
-      .min(2, 'El apellido debe tener al menos 2 caracteres'),
-    
-    email: yup
-      .string()
-      .required('El email del representante es obligatorio')
-      .email('Ingresa un email válido'),
-    
-    phone: yup
-      .string()
-      .required('El teléfono del representante es obligatorio')
-      .matches(/^[0-9+\-\s()]{10,15}$/, 'Ingresa un teléfono válido'),
-    
-    position: yup
-      .string()
-      .required('El cargo del representante es obligatorio')
-      .min(2, 'El cargo debe tener al menos 2 caracteres'),
+  // Representante legal (condicional para empresas comerciales)
+  legalRepresentative: yup.object().when('companyType', {
+    is: CompanyType.EMPRESA_COMERCIAL,
+    then: (schema) => schema.shape({
+      firstName: yup
+        .string()
+        .required('El nombre del representante es obligatorio')
+        .min(2, 'Mínimo 2 caracteres'),
+      
+      lastName: yup
+        .string()
+        .required('El apellido del representante es obligatorio')
+        .min(2, 'Mínimo 2 caracteres'),
+      
+      email: yup
+        .string()
+        .required('El email del representante es obligatorio')
+        .email('Ingresa un email válido'),
+      
+      phone: yup
+        .string()
+        .required('El teléfono del representante es obligatorio')
+        .matches(/^[0-9+\-\s()]{10,15}$/, 'Ingresa un teléfono válido'),
+      
+      position: yup
+        .string()
+        .required('El cargo del representante es obligatorio')
+        .min(2, 'Mínimo 2 caracteres'),
+      
+      documentType: yup
+        .string()
+        .required('El tipo de documento es obligatorio')
+        .oneOf(Object.values(DocumentType), 'Selecciona un tipo válido'),
+      
+      documentNumber: yup
+        .string()
+        .required('El número de documento es obligatorio')
+        .min(8, 'Mínimo 8 caracteres'),
+    }),
+    otherwise: (schema) => schema.notRequired(),
   }),
 });
 
@@ -167,7 +210,7 @@ export const CompanyRegisterScreen: React.FC = () => {
   const navigation = useNavigation<CompanyRegisterScreenNavigationProp>();
   const { registerCompany, isLoading, error } = useCompany();
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 4;
+  const totalSteps = 5;
 
   // 📋 Configuración del formulario
   const {
@@ -180,7 +223,8 @@ export const CompanyRegisterScreen: React.FC = () => {
     resolver: yupResolver(companyRegistrationSchema) as any,
     mode: 'onChange',
     defaultValues: {
-      companyType: CompanyType.LLC,
+      companyType: CompanyType.PERSONA_JURIDICA,
+      documentType: DocumentType.CEDULA,
       industry: IndustryType.OTHER,
       companySize: CompanySize.SMALL,
       address: {
@@ -196,7 +240,7 @@ export const CompanyRegisterScreen: React.FC = () => {
         email: '',
         phone: '',
         position: '',
-        documentType: 'DNI' as const,
+        documentType: DocumentType.CEDULA,
         documentNumber: '',
       },
       termsAccepted: false,
@@ -204,21 +248,24 @@ export const CompanyRegisterScreen: React.FC = () => {
     },
   });
 
+  // 👀 Observar el tipo de empresa seleccionado
+  const selectedCompanyType = watch('companyType');
+
   // 📝 Manejar envío del formulario
   const onSubmit = async (data: CompanyRegistrationData) => {
     try {
       await registerCompany(data);
       
       Alert.alert(
-          '🎉 ¡Empresa Registrada!',
-          'Tu empresa ha sido registrada exitosamente. Recibirás una notificación cuando sea verificada.',
-          [
-            {
-              text: 'Continuar',
-              onPress: () => navigation.goBack(),
-            },
-          ]
-        );
+        '🎉 ¡Empresa Registrada!',
+        'Tu empresa ha sido registrada exitosamente. Recibirás una notificación cuando sea verificada.',
+        [
+          {
+            text: 'Continuar',
+            onPress: () => navigation.goBack(),
+          },
+        ]
+      );
     } catch (error) {
       Alert.alert(
         '❌ Error',
@@ -243,22 +290,6 @@ export const CompanyRegisterScreen: React.FC = () => {
     }
   };
 
-  // 📋 Obtener campos por paso
-  const getFieldsForStep = (step: number): (keyof CompanyRegistrationData | string)[] => {
-    switch (step) {
-      case 1:
-        return ['name', 'legalName', 'taxId', 'email', 'phone', 'website'];
-      case 2:
-        return ['companyType', 'registrationNumber', 'registrationDate', 'industry', 'companySize', 'employeeCount'];
-      case 3:
-        return ['address', 'annualRevenue'];
-      case 4:
-        return ['legalRepresentative'];
-      default:
-        return [];
-    }
-  };
-
   // 🎨 Renderizar indicador de progreso
   const renderProgressIndicator = () => (
     <View style={styles.progressContainer}>
@@ -276,72 +307,209 @@ export const CompanyRegisterScreen: React.FC = () => {
     </View>
   );
 
-  // 🎨 Renderizar paso 1: Información básica
+  // 🎨 Renderizar selector de tipo de empresa
+  const renderCompanyTypeSelector = () => (
+    <View style={styles.selectorContainer}>
+      <Text style={styles.selectorTitle}>Tipo de Entidad *</Text>
+      <Controller
+        control={control}
+        name="companyType"
+        render={({ field: { onChange, value } }) => (
+          <View style={styles.optionsContainer}>
+            <TouchableOpacity
+              style={[
+                styles.optionButton,
+                value === CompanyType.PERSONA_JURIDICA && styles.optionButtonSelected,
+              ]}
+              onPress={() => onChange(CompanyType.PERSONA_JURIDICA)}
+            >
+              <Text style={[
+                styles.optionText,
+                value === CompanyType.PERSONA_JURIDICA && styles.optionTextSelected,
+              ]}>
+                👤 Persona Jurídica
+              </Text>
+              <Text style={styles.optionDescription}>
+                Persona individual con actividad comercial
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.optionButton,
+                value === CompanyType.EMPRESA_COMERCIAL && styles.optionButtonSelected,
+              ]}
+              onPress={() => onChange(CompanyType.EMPRESA_COMERCIAL)}
+            >
+              <Text style={[
+                styles.optionText,
+                value === CompanyType.EMPRESA_COMERCIAL && styles.optionTextSelected,
+              ]}>
+                🏢 Empresa Comercial
+              </Text>
+              <Text style={styles.optionDescription}>
+                Empresa constituida legalmente
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      />
+      {errors.companyType && (
+        <Text style={styles.errorText}>{errors.companyType.message}</Text>
+      )}
+    </View>
+  );
+
+  // 🎨 Renderizar paso 1: Tipo de entidad y datos básicos
   const renderStep1 = () => (
     <View style={styles.stepContainer}>
-      <Text style={styles.stepTitle}>📋 Información Básica</Text>
+      <Text style={styles.stepTitle}>🏢 Información de la Entidad</Text>
       
-      <Controller
-        control={control}
-        name="name"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <AuthInput
-            label="Nombre Comercial *"
-            placeholder="Ej: Mi Empresa SRL"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            error={errors.name?.message}
-            leftIcon="business-outline"
+      {renderCompanyTypeSelector()}
+
+      {selectedCompanyType === CompanyType.PERSONA_JURIDICA && (
+        <>
+          <Controller
+            control={control}
+            name="firstName"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <AuthInput
+                label="Nombres *"
+                placeholder="Ingresa tus nombres"
+                value={value || ''}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                error={errors.firstName?.message}
+                leftIcon={<Text>👤</Text>}
+              />
+            )}
           />
-        )}
-      />
-      
-      <Controller
-        control={control}
-        name="legalName"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <AuthInput
-            label="Razón Social *"
-            placeholder="Nombre legal de la empresa"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            error={errors.legalName?.message}
-            leftIcon="document-text-outline"
+          
+          <Controller
+            control={control}
+            name="lastName"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <AuthInput
+                label="Apellidos *"
+                placeholder="Ingresa tus apellidos"
+                value={value || ''}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                error={errors.lastName?.message}
+                leftIcon={<Text>👤</Text>}
+              />
+            )}
           />
+        </>
+      )}
+
+      {selectedCompanyType === CompanyType.EMPRESA_COMERCIAL && (
+        <>
+          <Controller
+            control={control}
+            name="businessName"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <AuthInput
+                label="Nombre de la Empresa *"
+                placeholder="Ej: Mi Empresa SRL"
+                value={value || ''}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                error={errors.businessName?.message}
+                leftIcon={<Text>🏢</Text>}
+              />
+            )}
+          />
+          
+          <Controller
+            control={control}
+            name="legalName"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <AuthInput
+                label="Razón Social *"
+                placeholder="Nombre legal completo"
+                value={value || ''}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                error={errors.legalName?.message}
+                leftIcon={<Text>📋</Text>}
+              />
+            )}
+          />
+        </>
+      )}
+
+      {/* Selector de tipo de documento */}
+      <View style={styles.selectorContainer}>
+        <Text style={styles.inputLabel}>Tipo de Documento *</Text>
+        <Controller
+          control={control}
+          name="documentType"
+          render={({ field: { onChange, value } }) => (
+            <View style={styles.pickerContainer}>
+              {Object.values(DocumentType).map((type) => (
+                <TouchableOpacity
+                  key={type}
+                  style={[
+                    styles.pickerOption,
+                    value === type && styles.pickerOptionSelected,
+                  ]}
+                  onPress={() => onChange(type)}
+                >
+                  <Text style={[
+                    styles.pickerText,
+                    value === type && styles.pickerTextSelected,
+                  ]}>
+                    {type === DocumentType.CEDULA ? 'Cédula' :
+                     type === DocumentType.RNC ? 'RNC' :
+                     type === DocumentType.PASSPORT ? 'Pasaporte' : 'Licencia'}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+        />
+        {errors.documentType && (
+          <Text style={styles.errorText}>{errors.documentType.message}</Text>
         )}
-      />
-      
+      </View>
+
       <Controller
         control={control}
-        name="taxId"
+        name="documentNumber"
         render={({ field: { onChange, onBlur, value } }) => (
           <AuthInput
-            label="RNC/Cédula *"
+            label="Número de Documento *"
             placeholder="123456789"
             value={value}
             onChangeText={onChange}
             onBlur={onBlur}
-            error={errors.taxId?.message}
-            leftIcon="card-outline"
+            error={errors.documentNumber?.message}
+            leftIcon={<Text>📄</Text>}
             keyboardType="numeric"
           />
         )}
       />
+    </View>
+  );
+
+  // 🎨 Renderizar paso 2: Información de contacto
+  const renderStep2 = () => (
+    <View style={styles.stepContainer}>
+      <Text style={styles.stepTitle}>📞 Información de Contacto</Text>
       
       <Controller
         control={control}
         name="email"
         render={({ field: { onChange, onBlur, value } }) => (
           <AuthInput
-            label="Email Corporativo *"
+            label="Email *"
             placeholder="empresa@ejemplo.com"
             value={value}
             onChangeText={onChange}
             onBlur={onBlur}
             error={errors.email?.message}
-            leftIcon="mail-outline"
+            leftIcon={<Text>📧</Text>}
             keyboardType="email-address"
             autoCapitalize="none"
           />
@@ -359,7 +527,7 @@ export const CompanyRegisterScreen: React.FC = () => {
             onChangeText={onChange}
             onBlur={onBlur}
             error={errors.phone?.message}
-            leftIcon="call-outline"
+            leftIcon={<Text>📱</Text>}
             keyboardType="phone-pad"
           />
         )}
@@ -370,13 +538,13 @@ export const CompanyRegisterScreen: React.FC = () => {
         name="website"
         render={({ field: { onChange, onBlur, value } }) => (
           <AuthInput
-            label="Sitio Web"
+            label="Sitio Web (Opcional)"
             placeholder="https://www.empresa.com"
             value={value || ''}
             onChangeText={onChange}
             onBlur={onBlur}
             error={errors.website?.message}
-            leftIcon="globe-outline"
+            leftIcon={<Text>🌐</Text>}
             keyboardType="url"
             autoCapitalize="none"
           />
@@ -385,29 +553,10 @@ export const CompanyRegisterScreen: React.FC = () => {
     </View>
   );
 
-  // 🎨 Renderizar paso 2: Información legal
-  const renderStep2 = () => (
+  // 🎨 Renderizar paso 3: Fechas importantes
+  const renderStep3 = () => (
     <View style={styles.stepContainer}>
-      <Text style={styles.stepTitle}>⚖️ Información Legal</Text>
-      
-      {/* Aquí irían los selectores para tipo de empresa, industria, etc. */}
-      {/* Por simplicidad, usando inputs de texto */}
-      
-      <Controller
-        control={control}
-        name="registrationNumber"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <AuthInput
-            label="Número de Registro *"
-            placeholder="REG-123456"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            error={errors.registrationNumber?.message}
-            leftIcon="receipt-outline"
-          />
-        )}
-      />
+      <Text style={styles.stepTitle}>📅 Fechas Importantes</Text>
       
       <Controller
         control={control}
@@ -420,47 +569,48 @@ export const CompanyRegisterScreen: React.FC = () => {
             onChangeText={onChange}
             onBlur={onBlur}
             error={errors.registrationDate?.message}
-            leftIcon="calendar-outline"
+            leftIcon={<Text>📅</Text>}
+            helperText="Fecha de registro en el sistema (YYYY-MM-DD)"
           />
         )}
       />
       
       <Controller
         control={control}
-        name="employeeCount"
+        name="companyFoundationDate"
         render={({ field: { onChange, onBlur, value } }) => (
           <AuthInput
-            label="Número de Empleados *"
-            placeholder="25"
-            value={value?.toString() || ''}
-            onChangeText={(text) => onChange(parseInt(text) || 0)}
+            label="Fecha de Creación de la Empresa *"
+            placeholder="2020-06-10"
+            value={value}
+            onChangeText={onChange}
             onBlur={onBlur}
-            error={errors.employeeCount?.message}
-            leftIcon="people-outline"
-            keyboardType="numeric"
+            error={errors.companyFoundationDate?.message}
+            leftIcon={<Text>🏗️</Text>}
+            helperText="Fecha de constitución de la empresa (YYYY-MM-DD)"
           />
         )}
       />
     </View>
   );
 
-  // 🎨 Renderizar paso 3: Dirección y finanzas
-  const renderStep3 = () => (
+  // 🎨 Renderizar paso 4: Ubicación
+  const renderStep4 = () => (
     <View style={styles.stepContainer}>
-      <Text style={styles.stepTitle}>🏢 Dirección y Finanzas</Text>
+      <Text style={styles.stepTitle}>📍 Ubicación del Establecimiento</Text>
       
       <Controller
         control={control}
         name="address.street"
         render={({ field: { onChange, onBlur, value } }) => (
           <AuthInput
-            label="Dirección *"
+            label="Dirección del Establecimiento *"
             placeholder="Calle Principal #123, Sector Centro"
             value={value}
             onChangeText={onChange}
             onBlur={onBlur}
             error={errors.address?.street?.message}
-            leftIcon="location-outline"
+            leftIcon={<Text>📍</Text>}
             multiline
           />
         )}
@@ -477,7 +627,7 @@ export const CompanyRegisterScreen: React.FC = () => {
             onChangeText={onChange}
             onBlur={onBlur}
             error={errors.address?.city?.message}
-            leftIcon="business-outline"
+            leftIcon={<Text>🏙️</Text>}
           />
         )}
       />
@@ -493,7 +643,7 @@ export const CompanyRegisterScreen: React.FC = () => {
             onChangeText={onChange}
             onBlur={onBlur}
             error={errors.address?.state?.message}
-            leftIcon="map-outline"
+            leftIcon={<Text>🗺️</Text>}
           />
         )}
       />
@@ -509,24 +659,7 @@ export const CompanyRegisterScreen: React.FC = () => {
             onChangeText={onChange}
             onBlur={onBlur}
             error={errors.address?.zipCode?.message}
-            leftIcon="mail-outline"
-            keyboardType="numeric"
-          />
-        )}
-      />
-      
-      <Controller
-        control={control}
-        name="annualRevenue"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <AuthInput
-            label="Ingresos Anuales (RD$) *"
-            placeholder="5000000"
-            value={value?.toString() || ''}
-            onChangeText={(text) => onChange(parseFloat(text) || 0)}
-            onBlur={onBlur}
-            error={errors.annualRevenue?.message}
-            leftIcon="cash-outline"
+            leftIcon={<Text>📮</Text>}
             keyboardType="numeric"
           />
         )}
@@ -534,93 +667,76 @@ export const CompanyRegisterScreen: React.FC = () => {
     </View>
   );
 
-  // 🎨 Renderizar paso 4: Representante legal
-  const renderStep4 = () => (
+  // 🎨 Renderizar paso 5: Representante legal (si es empresa comercial)
+  const renderStep5 = () => (
     <View style={styles.stepContainer}>
-      <Text style={styles.stepTitle}>👤 Representante Legal</Text>
+      <Text style={styles.stepTitle}>
+        {selectedCompanyType === CompanyType.EMPRESA_COMERCIAL 
+          ? '👤 Representante Legal' 
+          : '✅ Confirmación'}
+      </Text>
       
-      <Controller
-        control={control}
-        name="legalRepresentative.firstName"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <AuthInput
-            label="Nombre *"
-            placeholder="Juan"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            error={errors.legalRepresentative?.firstName?.message}
-            leftIcon="person-outline"
+      {selectedCompanyType === CompanyType.EMPRESA_COMERCIAL && (
+        <>
+          <Controller
+            control={control}
+            name="legalRepresentative.firstName"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <AuthInput
+                label="Nombre del Representante *"
+                placeholder="Juan"
+                value={value || ''}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                error={errors.legalRepresentative?.firstName?.message}
+                leftIcon={<Text>👤</Text>}
+              />
+            )}
           />
-        )}
-      />
-      
-      <Controller
-        control={control}
-        name="legalRepresentative.lastName"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <AuthInput
-            label="Apellido *"
-            placeholder="Pérez"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            error={errors.legalRepresentative?.lastName?.message}
-            leftIcon="person-outline"
+          
+          <Controller
+            control={control}
+            name="legalRepresentative.lastName"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <AuthInput
+                label="Apellido del Representante *"
+                placeholder="Pérez"
+                value={value || ''}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                error={errors.legalRepresentative?.lastName?.message}
+                leftIcon={<Text>👤</Text>}
+              />
+            )}
           />
-        )}
-      />
-      
-      <Controller
-        control={control}
-        name="legalRepresentative.email"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <AuthInput
-            label="Email *"
-            placeholder="juan.perez@empresa.com"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            error={errors.legalRepresentative?.email?.message}
-            leftIcon="mail-outline"
-            keyboardType="email-address"
-            autoCapitalize="none"
+          
+          <Controller
+            control={control}
+            name="legalRepresentative.position"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <AuthInput
+                label="Cargo *"
+                placeholder="Gerente General"
+                value={value || ''}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                error={errors.legalRepresentative?.position?.message}
+                leftIcon={<Text>💼</Text>}
+              />
+            )}
           />
-        )}
-      />
-      
-      <Controller
-        control={control}
-        name="legalRepresentative.phone"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <AuthInput
-            label="Teléfono *"
-            placeholder="+1 (809) 123-4567"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            error={errors.legalRepresentative?.phone?.message}
-            leftIcon="call-outline"
-            keyboardType="phone-pad"
-          />
-        )}
-      />
-      
-      <Controller
-        control={control}
-        name="legalRepresentative.position"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <AuthInput
-            label="Cargo *"
-            placeholder="Gerente General"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            error={errors.legalRepresentative?.position?.message}
-            leftIcon="briefcase-outline"
-          />
-        )}
-      />
+        </>
+      )}
+
+      <View style={styles.summaryContainer}>
+        <Text style={styles.summaryTitle}>📋 Resumen del Registro</Text>
+        <Text style={styles.summaryText}>
+          Revisa toda la información antes de enviar el registro.
+        </Text>
+        <Text style={styles.summaryNote}>
+          💡 Certificado de registro mercantil es opcional y puede ser agregado posteriormente.
+        </Text>
+      </View>
     </View>
   );
 
@@ -635,6 +751,8 @@ export const CompanyRegisterScreen: React.FC = () => {
         return renderStep3();
       case 4:
         return renderStep4();
+      case 5:
+        return renderStep5();
       default:
         return renderStep1();
     }
@@ -691,7 +809,7 @@ export const CompanyRegisterScreen: React.FC = () => {
             <View style={styles.headerContent}>
               <Text style={styles.title}>🏢 Registro de Empresa</Text>
               <Text style={styles.subtitle}>
-                Completa la información para registrar tu empresa
+                Completa la información para registrar tu entidad
               </Text>
             </View>
           </View>
@@ -739,15 +857,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: COLORS.text.primary,
   },
-  errorIcon: {
-    fontSize: 16,
-    marginRight: 8,
-  },
-  backButtonIcon: {
-    fontSize: 18,
-    color: COLORS.primary,
-    marginRight: 4,
-  },
   headerContent: {
     flex: 1,
   },
@@ -791,6 +900,95 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
   },
+  selectorContainer: {
+    marginBottom: 20,
+  },
+  selectorTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.text.primary,
+    marginBottom: 12,
+  },
+  optionsContainer: {
+    gap: 12,
+  },
+  optionButton: {
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.surface,
+  },
+  optionButtonSelected: {
+    borderColor: COLORS.primary,
+    backgroundColor: `${COLORS.primary}10`,
+  },
+  optionText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.text.primary,
+    marginBottom: 4,
+  },
+  optionTextSelected: {
+    color: COLORS.primary,
+  },
+  optionDescription: {
+    fontSize: 14,
+    color: COLORS.text.secondary,
+  },
+  inputLabel: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: COLORS.text.primary,
+    marginBottom: 8,
+  },
+  pickerContainer: {
+    flexDirection: 'row',
+    borderRadius: 8,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  pickerOption: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    backgroundColor: COLORS.surface,
+    alignItems: 'center',
+  },
+  pickerOptionSelected: {
+    backgroundColor: COLORS.primary,
+  },
+  pickerText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: COLORS.text.primary,
+  },
+  pickerTextSelected: {
+    color: '#FFFFFF',
+  },
+  summaryContainer: {
+    backgroundColor: `${COLORS.primary}10`,
+    padding: 16,
+    borderRadius: 12,
+    marginTop: 20,
+  },
+  summaryTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.primary,
+    marginBottom: 8,
+  },
+  summaryText: {
+    fontSize: 14,
+    color: COLORS.text.secondary,
+    marginBottom: 8,
+  },
+  summaryNote: {
+    fontSize: 12,
+    color: COLORS.text.secondary,
+    fontStyle: 'italic',
+  },
   navigationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -805,11 +1003,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.primary,
   },
+  backButtonIcon: {
+    fontSize: 18,
+    color: COLORS.primary,
+    marginRight: 4,
+  },
   backButtonText: {
     color: COLORS.primary,
     fontSize: 16,
     fontWeight: '500',
-    marginLeft: 5,
   },
   spacer: {
     flex: 1,
@@ -829,10 +1031,13 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 20,
   },
+  errorIcon: {
+    fontSize: 16,
+    marginRight: 8,
+  },
   errorText: {
     color: COLORS.error,
     fontSize: 14,
-    marginLeft: 8,
     flex: 1,
   },
 });

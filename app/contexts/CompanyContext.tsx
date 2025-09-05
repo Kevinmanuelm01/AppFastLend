@@ -9,6 +9,7 @@ import {
   CompanyFilters,
   CompanyStatus,
   CompanyType,
+  DocumentType,
   IndustryType,
   CompanySize,
   CompanyError,
@@ -357,25 +358,55 @@ const simulateCompanyRegistration = async (data: CompanyRegistrationData): Promi
   await new Promise(resolve => setTimeout(resolve, 2000));
   
   // Validar datos básicos
-  if (!data.name || !data.taxId || !data.email) {
+  if (!data.email || !data.documentNumber) {
     return {
       success: false,
-      error: 'Faltan datos obligatorios',
+      error: 'Email y número de documento son obligatorios',
     };
+  }
+  
+  // Validar según tipo de empresa
+  if (data.companyType === CompanyType.PERSONA_JURIDICA) {
+    if (!data.firstName || !data.lastName) {
+      return {
+        success: false,
+        error: 'Nombres y apellidos son obligatorios para Persona Jurídica',
+      };
+    }
+  }
+  
+  if (data.companyType === CompanyType.EMPRESA_COMERCIAL) {
+    if (!data.businessName || !data.legalName) {
+      return {
+        success: false,
+        error: 'Nombre comercial y razón social son obligatorios para Empresa Comercial',
+      };
+    }
   }
   
   // Simular empresa registrada exitosamente
   const newCompany: Company = {
     id: Date.now().toString(),
-    name: data.name,
-    legalName: data.legalName,
-    taxId: data.taxId,
+    companyType: data.companyType,
+    
+    // Campos condicionales según tipo
+    ...(data.companyType === CompanyType.PERSONA_JURIDICA && {
+      firstName: data.firstName,
+      lastName: data.lastName,
+    }),
+    
+    ...(data.companyType === CompanyType.EMPRESA_COMERCIAL && {
+      businessName: data.businessName,
+      legalName: data.legalName,
+    }),
+    
+    documentType: data.documentType,
+    documentNumber: data.documentNumber,
+    registrationDate: data.registrationDate,
+    companyFoundationDate: data.companyFoundationDate,
     email: data.email,
     phone: data.phone,
     website: data.website,
-    companyType: data.companyType,
-    registrationNumber: data.registrationNumber,
-    registrationDate: data.registrationDate,
     industry: data.industry,
     companySize: data.companySize,
     employeeCount: data.employeeCount,
@@ -383,7 +414,12 @@ const simulateCompanyRegistration = async (data: CompanyRegistrationData): Promi
     annualRevenue: data.annualRevenue,
     status: CompanyStatus.PENDING,
     isVerified: false,
-    legalRepresentative: data.legalRepresentative,
+    
+    // Representante legal solo para empresas comerciales
+    ...(data.companyType === CompanyType.EMPRESA_COMERCIAL && data.legalRepresentative && {
+      legalRepresentative: data.legalRepresentative,
+    }),
+    
     documents: {},
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
