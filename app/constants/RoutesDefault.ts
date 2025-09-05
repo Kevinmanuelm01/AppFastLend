@@ -16,6 +16,13 @@ export const ROUTES = {
   COMPANY_DETAILS: 'CompanyDetails',
   COMPANY_EDIT: 'CompanyEdit',
   
+  // Client Stack
+  CLIENT_LIST: 'ClientList',
+  CLIENT_DETAILS: 'ClientDetails',
+  CLIENT_CREATE: 'ClientCreate',
+  CLIENT_EDIT: 'ClientEdit',
+  CLIENT_BANK_ACCESS: 'ClientBankAccess',
+  
   // Tab Navigation
   TAB_HOME: 'TabHome',
   TAB_SEARCH: 'TabSearch',

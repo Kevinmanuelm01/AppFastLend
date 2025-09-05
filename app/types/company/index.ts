@@ -1,4 +1,4 @@
-// 🏢 Tipos para el módulo de empresas
+// 🏢 Tipos para el módulo de empresas - Versión mejorada
 
 export enum CompanySize {
   MICRO = 'MICRO', // 1-10 empleados
@@ -8,12 +8,21 @@ export enum CompanySize {
 }
 
 export enum CompanyType {
+  PERSONA_JURIDICA = 'PERSONA_JURIDICA', // Persona Jurídica
+  EMPRESA_COMERCIAL = 'EMPRESA_COMERCIAL', // Empresa Comercial
   CORPORATION = 'CORPORATION', // Sociedad Anónima
   LLC = 'LLC', // Sociedad de Responsabilidad Limitada
   PARTNERSHIP = 'PARTNERSHIP', // Sociedad
   SOLE_PROPRIETORSHIP = 'SOLE_PROPRIETORSHIP', // Empresa Individual
   COOPERATIVE = 'COOPERATIVE', // Cooperativa
   NON_PROFIT = 'NON_PROFIT', // Sin fines de lucro
+}
+
+export enum DocumentType {
+  CEDULA = 'CEDULA', // Cédula de identidad
+  RNC = 'RNC', // Registro Nacional del Contribuyente
+  PASSPORT = 'PASSPORT', // Pasaporte
+  LICENSE = 'LICENSE', // Licencia
 }
 
 export enum IndustryType {
@@ -29,6 +38,8 @@ export enum IndustryType {
   HOSPITALITY = 'HOSPITALITY',
   REAL_ESTATE = 'REAL_ESTATE',
   CONSULTING = 'CONSULTING',
+  SERVICES = 'SERVICES',
+  COMMERCE = 'COMMERCE',
   OTHER = 'OTHER',
 }
 
@@ -44,31 +55,44 @@ export enum CompanyStatus {
 // 🏢 Interfaz principal de empresa
 export interface Company {
   id: string;
-  name: string;
-  legalName: string;
-  taxId: string; // RNC, RUT, etc.
+  
+  // Información básica
+  companyType: CompanyType;
+  
+  // Para Persona Jurídica
+  firstName?: string;
+  lastName?: string;
+  
+  // Para Empresa Comercial
+  businessName?: string; // Nombre comercial
+  legalName?: string; // Razón social
+  
+  // Documentación
+  documentType: DocumentType;
+  documentNumber: string; // Cédula o RNC
+  
+  // Fechas importantes
+  registrationDate: string; // Fecha de registro en el sistema
+  companyFoundationDate: string; // Fecha de creación de la empresa
+  
+  // Información de contacto
   email: string;
   phone: string;
   website?: string;
   
-  // Información legal
-  companyType: CompanyType;
-  registrationNumber: string;
-  registrationDate: string;
-  
-  // Clasificación
-  industry: IndustryType;
-  companySize: CompanySize;
-  employeeCount: number;
-  
-  // Dirección
+  // Ubicación
   address: {
-    street: string;
+    street: string; // Dirección del establecimiento
     city: string;
     state: string;
     zipCode: string;
     country: string;
   };
+  
+  // Clasificación
+  industry: IndustryType;
+  companySize: CompanySize;
+  employeeCount?: number;
   
   // Información financiera
   annualRevenue?: number;
@@ -79,14 +103,14 @@ export interface Company {
   isVerified: boolean;
   verificationDate?: string;
   
-  // Representante legal
-  legalRepresentative: {
+  // Representante legal (para empresas comerciales)
+  legalRepresentative?: {
     firstName: string;
     lastName: string;
     email: string;
     phone: string;
     position: string;
-    documentType: 'DNI' | 'PASSPORT' | 'LICENSE';
+    documentType: DocumentType;
     documentNumber: string;
   };
   
@@ -96,6 +120,7 @@ export interface Company {
     taxCertificate?: string;
     bankStatement?: string;
     incorporationCertificate?: string;
+    mercantileRegistration?: string; // Certificado de registro mercantil (opcional)
   };
   
   // Metadatos
@@ -106,45 +131,61 @@ export interface Company {
 
 // 📝 Datos para registro de empresa
 export interface CompanyRegistrationData {
-  // Información básica
-  name: string;
-  legalName: string;
-  taxId: string;
+  // Tipo de entidad
+  companyType: CompanyType;
+  
+  // Para Persona Jurídica
+  firstName?: string;
+  lastName?: string;
+  
+  // Para Empresa Comercial
+  businessName?: string; // Nombre comercial
+  legalName?: string; // Razón social
+  
+  // Documentación
+  documentType: DocumentType;
+  documentNumber: string; // Cédula o RNC
+  
+  // Fechas
+  registrationDate: string; // Fecha de registro
+  companyFoundationDate: string; // Fecha de creación de la empresa
+  
+  // Información de contacto
   email: string;
   phone: string;
   website?: string;
   
-  // Información legal
-  companyType: CompanyType;
-  registrationNumber: string;
-  registrationDate: string;
-  
-  // Clasificación
-  industry: IndustryType;
-  companySize: CompanySize;
-  employeeCount: number;
-  
-  // Dirección
+  // Ubicación
   address: {
-    street: string;
+    street: string; // Dirección del establecimiento
     city: string;
     state: string;
     zipCode: string;
     country: string;
   };
   
+  // Clasificación
+  industry: IndustryType;
+  companySize: CompanySize;
+  employeeCount?: number;
+  
   // Información financiera opcional
   annualRevenue?: number;
   
-  // Representante legal
-  legalRepresentative: {
+  // Representante legal (para empresas comerciales)
+  legalRepresentative?: {
     firstName: string;
     lastName: string;
     email: string;
     phone: string;
     position: string;
-    documentType: 'DNI' | 'PASSPORT' | 'LICENSE';
+    documentType: DocumentType;
     documentNumber: string;
+  };
+  
+  // Documentos opcionales
+  documents?: {
+    mercantileRegistration?: File; // Certificado de registro mercantil (opcional)
   };
   
   // Términos y condiciones
@@ -158,6 +199,7 @@ export interface CompanyFilters {
   industry?: IndustryType[];
   companySize?: CompanySize[];
   companyType?: CompanyType[];
+  documentType?: DocumentType[];
   isVerified?: boolean;
   country?: string;
   state?: string;
@@ -166,6 +208,8 @@ export interface CompanyFilters {
   maxRevenue?: number;
   registrationDateFrom?: string;
   registrationDateTo?: string;
+  foundationDateFrom?: string;
+  foundationDateTo?: string;
 }
 
 // 📊 Estadísticas de empresa
@@ -174,6 +218,7 @@ export interface CompanyStats {
   companiesByStatus: Record<CompanyStatus, number>;
   companiesByIndustry: Record<IndustryType, number>;
   companiesBySize: Record<CompanySize, number>;
+  companiesByType: Record<CompanyType, number>;
   averageRevenue: number;
   verificationRate: number;
 }
@@ -208,13 +253,18 @@ export interface CompanyError {
 
 // 📋 Errores de formulario
 export interface CompanyFormErrors {
-  name?: string;
+  companyType?: string;
+  firstName?: string;
+  lastName?: string;
+  businessName?: string;
   legalName?: string;
-  taxId?: string;
+  documentType?: string;
+  documentNumber?: string;
   email?: string;
   phone?: string;
   website?: string;
-  registrationNumber?: string;
+  registrationDate?: string;
+  companyFoundationDate?: string;
   employeeCount?: string;
   annualRevenue?: string;
   'address.street'?: string;
@@ -241,6 +291,7 @@ export type CompanyStackParamList = {
 export default {
   CompanySize,
   CompanyType,
+  DocumentType,
   IndustryType,
   CompanyStatus,
 };

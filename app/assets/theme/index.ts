@@ -1,7 +1,8 @@
-// Configuración del tema de la aplicación - Archivo principal de exportación
+// Sistema de tema moderno global - Archivo principal de exportación
 
-import { COLORS, SPACING } from '../../constants';
-import { FONT_SIZES, FONT_WEIGHTS } from './Fonts';
+import { COLORS } from './ColorsDefault';
+import { FONT_SIZES, FONT_WEIGHTS, FONT_FAMILIES } from './Fonts';
+import { SPACING, BORDER_RADIUS, SHADOWS } from './Metrics';
 import type { ThemeColors } from '../../types';
 
 // Importar archivos de tema
@@ -15,7 +16,7 @@ export { default as MetricsStyles } from './Metrics';
 export { default as MarginStyles } from './Margins';
 export { default as FontStyles } from './Fonts';
 
-// Tema claro
+// Tema claro moderno
 export const lightTheme: ThemeColors = {
   primary: COLORS.primary,
   secondary: COLORS.secondary,
@@ -25,18 +26,18 @@ export const lightTheme: ThemeColors = {
   border: COLORS.border,
 };
 
-// Tema oscuro
+// Tema oscuro moderno
 export const darkTheme: ThemeColors = {
   primary: '#60a5fa',
   secondary: '#9ca3af',
-  background: '#111827',
-  surface: '#1f2937',
+  background: '#0f172a',
+  surface: '#1e293b',
   text: {
-    primary: '#f9fafb',
-    secondary: '#d1d5db',
-    light: '#9ca3af',
+    primary: '#f8fafc',
+    secondary: '#cbd5e1',
+    light: '#94a3b8',
   },
-  border: '#374151',
+  border: '#334155',
 };
 
 // Estilos comunes

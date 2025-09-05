@@ -199,6 +199,7 @@ export type AuthStackParamList = {
   Register: { role?: UserRole };
   ForgotPassword: undefined;
   ResetPassword: { token: string };
+  TwoFactor: { method?: 'SMS' | 'EMAIL' | 'AUTHENTICATOR'; phone?: string; email?: string };
   Profile: undefined;
 };
 

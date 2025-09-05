@@ -15,6 +15,7 @@ import * as yup from 'yup';
 import { AuthInput, AuthButton, AuthCard } from '../../components/auth';
 import { COLORS, FONT_FAMILIES, SPACING } from '../../constants';
 import { AuthStackParamList } from '../../types/auth';
+import { useAuth } from '../../contexts/AuthContext';
 
 // 📋 Esquema de validación
 const forgotPasswordSchema = yup.object().shape({
@@ -33,6 +34,7 @@ type Props = NativeStackScreenProps<AuthStackParamList, 'ForgotPassword'>;
 export const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const { forgotPassword, authState, clearError } = useAuth();
 
   const {
     control,
@@ -47,32 +49,16 @@ export const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
   const onSubmit = async (data: ForgotPasswordFormData) => {
     try {
       setIsLoading(true);
+      clearError();
       
-      // 🔄 Simular llamada a API para recuperar contraseña
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // 🔄 Llamada a API para recuperar contraseña
+      await forgotPassword(data.email);
       
       // 📧 Mostrar mensaje de éxito
       setEmailSent(true);
-      
-      Alert.alert(
-        '📧 Email enviado',
-        `Se ha enviado un enlace de recuperación a ${data.email}. Revisa tu bandeja de entrada y spam.`,
-        [
-          {
-            text: 'Entendido',
-            onPress: () => {
-              reset();
-              navigation.goBack();
-            },
-          },
-        ]
-      );
+      reset();
     } catch (error) {
-      Alert.alert(
-        '❌ Error',
-        'No se pudo enviar el email de recuperación. Intenta nuevamente.',
-        [{ text: 'OK' }]
-      );
+      console.error('Error en forgot password:', error);
     } finally {
       setIsLoading(false);
     }
@@ -81,9 +67,12 @@ export const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
   const handleResendEmail = async () => {
     try {
       setIsLoading(true);
+      clearError();
       
-      // 🔄 Simular reenvío de email
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const { email } = control._formValues;
+      if (email) {
+        await forgotPassword(email);
+      }
       
       Alert.alert(
         '📧 Email reenviado',
@@ -91,11 +80,7 @@ export const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
         [{ text: 'OK' }]
       );
     } catch (error) {
-      Alert.alert(
-        '❌ Error',
-        'No se pudo reenviar el email. Intenta nuevamente.',
-        [{ text: 'OK' }]
-      );
+      console.error('Error en reenvío:', error);
     } finally {
       setIsLoading(false);
     }
@@ -112,6 +97,14 @@ export const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
       >
         <AuthCard>
+          {/* 🚨 Mostrar error si existe */}
+          {authState.error && (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorIcon}>⚠️</Text>
+              <Text style={styles.errorText}>{authState.error}</Text>
+            </View>
+          )}
+
           <View style={styles.header}>
             <Text style={styles.title}>🔐 Recuperar Contraseña</Text>
             <Text style={styles.subtitle}>
@@ -145,8 +138,8 @@ export const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
               <AuthButton
                 title="Enviar Instrucciones"
                 onPress={handleSubmit(onSubmit)}
-                isLoading={isLoading}
-                isDisabled={!isValid || isLoading}
+                isLoading={isLoading || authState.isLoading}
+                isDisabled={!isValid || isLoading || authState.isLoading}
                 variant="primary"
                 size="large"
                 style={styles.submitButton}
@@ -168,7 +161,7 @@ export const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
                 <AuthButton
                   title="Reenviar"
                   onPress={handleResendEmail}
-                  isLoading={isLoading}
+                  isLoading={isLoading || authState.isLoading}
                   variant="outline"
                   size="medium"
                   style={styles.resendButton}
@@ -272,5 +265,25 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     borderTopWidth: 1,
     borderTopColor: COLORS.border,
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fef2f2',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#fecaca',
+  },
+  errorIcon: {
+    fontSize: 16,
+    marginRight: 8,
+  },
+  errorText: {
+    color: '#dc2626',
+    fontSize: 14,
+    flex: 1,
+    fontWeight: '500',
   },
 });

@@ -2,9 +2,12 @@
 
 // 🔘 Componentes principales
 export { default as AuthInput } from './AuthInput';
+export { default as SimpleAuthInput } from './SimpleAuthInput';
 export { default as AuthButton } from './AuthButton';
 export { default as AuthCard } from './AuthCard';
+export { default as UserDropdown } from './UserDropdown';
+export { default as BiometricButton } from './BiometricButton';
+export { default as RoleBasedAccess, AdminOnly, ClientOnly, EmployeeOnly, AccountingOnly, useRoleAccess } from './RoleBasedAccess';
 
-// 🎯 Tipos de componentes
-// Nota: Los tipos están definidos internamente en cada componente
-// y no necesitan ser exportados por ahora
+// 🎯 Re-exportar tipos importantes
+export type { AuthStackParamList } from '../../types/auth';

@@ -2,7 +2,7 @@
 
 // Importaciones desde archivos modulares
 export { COLORS } from '../assets/theme/ColorsDefault';
-export { SPACING, COMPONENT_SIZES } from '../assets/theme/Metrics';
+export { SPACING, COMPONENT_SIZES, BORDER_RADIUS, SHADOWS } from '../assets/theme/Metrics';
 export { FONT_SIZES, FONT_WEIGHTS, FONT_FAMILIES, TYPOGRAPHY_STYLES } from '../assets/theme/Fonts';
 export { PADDING_STYLES, MARGIN_STYLES } from '../assets/theme/Margins';
 export { API_CONFIG, API_ENDPOINTS, DEFAULT_HEADERS, HTTP_STATUS } from './ApiDefault';
