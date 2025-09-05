@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { StatusBar } from 'react-native';
-import { AuthProvider } from './app/contexts/AuthContextSimple';
+import { AuthProvider } from './app/contexts/AuthContext';
 import Routes from './app/routes/Routes';
 import { COLORS } from './app/constants';
 

@@ -16,7 +16,7 @@ import { AuthInput, AuthButton, AuthCard } from '../../components/auth';
 import { COLORS, FONT_FAMILIES, SPACING } from '../../constants';
 import { UserRole } from '../../types/auth';
 import { AuthStackParamList, User } from '../../types/auth';
-import { useAuth } from '../../contexts/AuthContextSimple';
+import { useAuth } from '../../contexts/AuthContext';
 
 // 📋 Esquema de validación para el perfil
 const profileSchema = yup.object().shape({
@@ -48,8 +48,8 @@ type ProfileFormData = {
 type Props = NativeStackScreenProps<AuthStackParamList, 'Profile'>;
 
 export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
-  const { authState, logout, updateProfile } = useAuth();
-  const { user } = authState;
+  const { authState, logout, updateProfile, clearError } = useAuth();
+  const { user, isLoading, error } = authState;
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -73,17 +73,10 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
   const onSubmit = async (data: ProfileFormData) => {
     try {
       setIsLoading(true);
+      clearError();
 
-      // 🔄 Simular actualización del perfil
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // Actualizar el perfil en el contexto
-      if (updateProfile) {
-        await updateProfile({
-          ...user!,
-          ...data,
-        });
-      }
+      // Actualizar el perfil
+      await updateProfile(data);
 
       setIsEditing(false);
 
@@ -144,6 +137,14 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
       showsVerticalScrollIndicator={false}
     >
       <AuthCard>
+        {/* 🚨 Mostrar error si existe */}
+        {error && (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorIcon}>⚠️</Text>
+            <Text style={styles.errorText}>{error}</Text>
+          </View>
+        )}
+
         {/* 👤 Header del perfil */}
         <View style={styles.header}>
           <TouchableOpacity
@@ -273,8 +274,8 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
               <AuthButton
                 title="💾 Guardar Cambios"
                 onPress={handleSubmit(onSubmit as any)}
-                isLoading={isLoading}
-                isDisabled={!isValid || !isDirty || isLoading}
+                isLoading={isLoading || authState.isLoading}
+                isDisabled={!isValid || !isDirty || isLoading || authState.isLoading}
                 variant="primary"
                 size="large"
                 style={styles.saveButton}
@@ -407,5 +408,25 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: COLORS.border,
     alignItems: 'center',
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fef2f2',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#fecaca',
+  },
+  errorIcon: {
+    fontSize: 16,
+    marginRight: 8,
+  },
+  errorText: {
+    color: '#dc2626',
+    fontSize: 14,
+    flex: 1,
+    fontWeight: '500',
   },
 });

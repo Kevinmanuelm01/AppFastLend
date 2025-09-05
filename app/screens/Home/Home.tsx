@@ -7,7 +7,7 @@ import type { MainNavigatorParamList } from '../../constants/RoutesDefault';
 import { ModernButton, ModernCard } from '../../components/common';
 import { AuthInput } from '../../components/auth';
 import { isValidEmail } from '../../utils';
-import { useAuth } from '../../contexts/AuthContextSimple';
+import { useAuth } from '../../contexts/AuthContext';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<MainNavigatorParamList, 'Main'>;
 
@@ -15,7 +15,8 @@ export function HomeScreen() {
   console.log('HomeScreen component rendered');
 
   const navigation = useNavigation<HomeScreenNavigationProp>();
-  const { logout } = useAuth();
+  const { logout, authState } = useAuth();
+  const { user } = authState;
 
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
@@ -88,11 +89,27 @@ export function HomeScreen() {
         <View style={styles.headerContainer}>
           <View style={styles.welcomeSection}>
             <Text style={styles.welcomeEmoji}>👋</Text>
-            <Text style={styles.title}>¡Bienvenido!</Text>
+            <Text style={styles.title}>
+              ¡Bienvenido{user ? `, ${user.firstName}` : ''}!
+            </Text>
             <Text style={styles.subtitle}>AppFastLend</Text>
             <Text style={styles.description}>
               Tu plataforma de préstamos rápida y segura
             </Text>
+            
+            {/* 👤 Información del usuario */}
+            {user && (
+              <View style={styles.userInfo}>
+                <Text style={styles.userRole}>
+                  {user.role === 'ADMIN' ? '👑 Administrador' :
+                   user.role === 'CLIENT' ? '👤 Cliente' :
+                   user.role === 'ACCOUNTING' ? '💰 Contabilidad' :
+                   user.role === 'CUSTOMER_SERVICE' ? '🎧 Servicio al Cliente' :
+                   '👤 Usuario'}
+                </Text>
+                <Text style={styles.userEmail}>{user.email}</Text>
+              </View>
+            )}
           </View>
         </View>
 
@@ -289,6 +306,26 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.text.secondary,
     lineHeight: 20,
+  },
+  userInfo: {
+    marginTop: 16,
+    padding: 16,
+    backgroundColor: COLORS.primary + '10',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.primary + '20',
+  },
+  userRole: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.primary,
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  userEmail: {
+    fontSize: 14,
+    color: COLORS.text.secondary,
+    textAlign: 'center',
   },
 });
 

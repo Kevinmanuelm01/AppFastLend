@@ -14,7 +14,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { AuthInput, AuthButton, AuthCard } from '../../components/auth';
-import { useAuth } from '../../contexts/AuthContextSimple';
+import { useAuth } from '../../contexts/AuthContext';
 import { COLORS } from '../../constants';
 import { UserRole, type RegisterData } from '../../types/auth';
 
@@ -99,7 +99,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation, route }) =>
   );
 
   // 🎯 Contexto de autenticación
-  const { register } = useAuth();
+  const { register, authState, clearError } = useAuth();
 
   // 🎯 Configuración del formulario
   const {
@@ -132,6 +132,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation, route }) =>
   const onSubmit = async (data: RegisterFormData) => {
     try {
       setIsLoading(true);
+      clearError();
 
       // 🔄 Preparar datos de registro
       const registerData: RegisterData = {
@@ -167,11 +168,8 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation, route }) =>
       );
     } catch (error) {
       console.error('Error en registro:', error);
-      Alert.alert(
-        'Error en Registro',
-        'Ocurrió un error al crear tu cuenta. Por favor, intenta nuevamente.',
-        [{ text: 'OK' }]
-      );
+      const errorMessage = error instanceof Error ? error.message : 'Error de registro';
+      Alert.alert('❌ Error de Registro', errorMessage, [{ text: 'OK' }]);
     } finally {
       setIsLoading(false);
     }
@@ -251,6 +249,14 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation, route }) =>
 
           {/* 📝 Formulario */}
           <View style={styles.form}>
+            {/* 🚨 Mostrar error si existe */}
+            {authState.error && (
+              <View style={styles.errorContainer}>
+                <Text style={styles.errorIcon}>⚠️</Text>
+                <Text style={styles.errorText}>{authState.error}</Text>
+              </View>
+            )}
+
             {/* 👤 Información personal */}
             <Text style={styles.sectionTitle}>Información Personal</Text>
 
@@ -495,9 +501,9 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation, route }) =>
             <AuthButton
               title="Crear Cuenta"
               onPress={handleSubmit(onSubmit)}
-              isLoading={isLoading}
+              isLoading={isLoading || authState.isLoading}
               loadingText="Creando cuenta..."
-              isDisabled={!isValid || !termsAccepted}
+              isDisabled={!isValid || !termsAccepted || authState.isLoading}
               style={styles.registerButton}
             />
           </View>
@@ -711,6 +717,26 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.primary,
     fontWeight: '600',
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fef2f2',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#fecaca',
+  },
+  errorIcon: {
+    fontSize: 16,
+    marginRight: 8,
+  },
+  errorText: {
+    color: '#dc2626',
+    fontSize: 14,
+    flex: 1,
+    fontWeight: '500',
   },
 });
 

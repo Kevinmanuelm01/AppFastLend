@@ -2,7 +2,14 @@
 
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { LoginScreen, RegisterScreen, ForgotPasswordScreen, ProfileScreen } from '../screens/auth';
+import { 
+  LoginScreen, 
+  RegisterScreen, 
+  ForgotPasswordScreen, 
+  ResetPasswordScreen,
+  TwoFactorScreen,
+  ProfileScreen 
+} from '../screens/auth';
 import { COLORS } from '../constants';
 import type { AuthStackParamList } from '../types/auth';
 
@@ -51,6 +58,26 @@ const AuthNavigator: React.FC = () => {
         }}
       />
 
+      {/* 🔐 Pantalla de Restablecer Contraseña */}
+      <Stack.Screen
+        name="ResetPassword"
+        component={ResetPasswordScreen}
+        options={{
+          title: 'Nueva Contraseña',
+          animation: 'slide_from_bottom',
+        }}
+      />
+
+      {/* 🔐 Pantalla de Autenticación 2FA */}
+      <Stack.Screen
+        name="TwoFactor"
+        component={TwoFactorScreen}
+        options={{
+          title: 'Verificación de Seguridad',
+          animation: 'slide_from_right',
+        }}
+      />
+
       {/* 👤 Pantalla de Perfil */}
       <Stack.Screen
         name="Profile"
@@ -61,26 +88,6 @@ const AuthNavigator: React.FC = () => {
           headerBackTitleVisible: false,
         }}
       />
-
-      {/* TODO: Agregar cuando se implementen */}
-      {/* 
-      <Stack.Screen
-        name="ForgotPassword"
-        component={ForgotPasswordScreen}
-        options={{
-          title: 'Recuperar Contraseña',
-          animation: 'fade',
-        }}
-      />
-      
-      <Stack.Screen
-        name="ResetPassword"
-        component={ResetPasswordScreen}
-        options={{
-          title: 'Restablecer Contraseña',
-        }}
-      />
-      */}
     </Stack.Navigator>
   );
 };

@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { HomeScreen } from '../screens/Home/Home';
 import { AuthNavigator } from './AuthNavigator';
 import { CompanyNavigator } from './CompanyNavigator';
-import { useAuth } from '../contexts/AuthContextSimple';
+import { useAuth } from '../contexts/AuthContext';
 import { CompanyProvider } from '../contexts/CompanyContext';
 import { ActivityIndicator, View } from 'react-native';
 import { COLORS } from '../constants';
@@ -12,7 +12,8 @@ import { COLORS } from '../constants';
 const Stack = createNativeStackNavigator();
 
 function Routes() {
-  const { user, isLoading } = useAuth();
+  const { authState } = useAuth();
+  const { user, isLoading } = authState;
 
   // Mostrar loading mientras se verifica el estado de autenticación
   if (isLoading) {

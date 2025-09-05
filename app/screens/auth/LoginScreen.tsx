@@ -14,7 +14,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { AuthInput, AuthButton, AuthCard } from '../../components/auth';
-import { useAuth } from '../../contexts/AuthContextSimple';
+import { useAuth } from '../../contexts/AuthContext';
 import { COLORS } from '../../constants';
 import type { LoginCredentials } from '../../types/auth';
 
@@ -52,7 +52,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const [rememberMe, setRememberMe] = useState(false);
 
   // 🎯 Contexto de autenticación
-  const { login } = useAuth();
+  const { login, authState, clearError } = useAuth();
 
   // 🎯 Configuración del formulario
   const {
@@ -73,6 +73,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const onSubmit = async (data: LoginFormData) => {
     try {
       setIsLoading(true);
+      clearError();
 
       // 🔄 Preparar credenciales
       const credentials: LoginCredentials = {
@@ -88,11 +89,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       reset();
     } catch (error) {
       console.error('Error en login:', error);
-      Alert.alert(
-        'Error',
-        'Ocurrió un error inesperado. Por favor, intenta nuevamente.',
-        [{ text: 'OK' }]
-      );
+      const errorMessage = error instanceof Error ? error.message : 'Error de autenticación';
+      Alert.alert('❌ Error de Autenticación', errorMessage, [{ text: 'OK' }]);
     } finally {
       setIsLoading(false);
     }
@@ -128,6 +126,14 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         <AuthCard style={styles.card}>
           {/* 📝 Formulario */}
           <View style={styles.form}>
+            {/* 🚨 Mostrar error si existe */}
+            {authState.error && (
+              <View style={styles.errorContainer}>
+                <Text style={styles.errorIcon}>⚠️</Text>
+                <Text style={styles.errorText}>{authState.error}</Text>
+              </View>
+            )}
+
             {/* 📧 Campo Email/Usuario */}
             <Controller
               control={control}
@@ -200,9 +206,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             <AuthButton
               title="Iniciar Sesión"
               onPress={handleSubmit(onSubmit)}
-              isLoading={isLoading}
+              isLoading={isLoading || authState.isLoading}
               loadingText="Iniciando sesión..."
-              isDisabled={!isValid}
+              isDisabled={!isValid || authState.isLoading}
               style={styles.loginButton}
             />
           </View>
@@ -315,6 +321,26 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.primary,
     fontWeight: '600',
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fef2f2',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#fecaca',
+  },
+  errorIcon: {
+    fontSize: 16,
+    marginRight: 8,
+  },
+  errorText: {
+    color: '#dc2626',
+    fontSize: 14,
+    flex: 1,
+    fontWeight: '500',
   },
 });
 
