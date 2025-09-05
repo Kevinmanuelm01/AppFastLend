@@ -1,0 +1,15 @@
+diff --git a/node_modules/react-native/node_modules/@react-native-community/cli/setup_env.sh b/node_modules/react-native/node_modules/@react-native-community/cli/setup_env.sh
+index 1234567..abcdefg 100755
+--- a/node_modules/react-native/node_modules/@react-native-community/cli/setup_env.sh
++++ b/node_modules/react-native/node_modules/@react-native-community/cli/setup_env.sh
+@@ -1,4 +1,8 @@
+ #!/bin/bash
+ 
+-# Increase file descriptor limit for Metro bundler
+-ulimit -n 4096
++# Increase file descriptor limit for Metro bundler (if ulimit is available)
++if command -v ulimit >/dev/null 2>&1; then
++  ulimit -n 4096
++else
++  echo "Warning: ulimit command not available, skipping file descriptor limit increase"
++fi
