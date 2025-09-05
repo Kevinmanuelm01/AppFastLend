@@ -88,7 +88,7 @@
     "clean": "npm run android:clean && npm run ios:clean",
     "clean:cache": "npx react-native start --reset-cache",
     "clean:metro": "rm -rf /tmp/metro-* && rm -rf /tmp/react-native-*",
-    "clean:watchman": "watchman watch-del-all",
+    "clean:watchman": "command -v watchman >/dev/null 2>&1 && watchman watch-del-all || echo 'Watchman not available, skipping...'",
     "clean:node": "rm -rf node_modules && rm -f package-lock.json",
     "clean:all": "npm run clean:node && npm run clean:metro && npm run clean:watchman && npm run clean",
     "clean:deep": "npm run clean:all && npm install && npm run pod-install",
