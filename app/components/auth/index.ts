@@ -5,6 +5,8 @@ export { default as AuthInput } from './AuthInput';
 export { default as SimpleAuthInput } from './SimpleAuthInput';
 export { default as AuthButton } from './AuthButton';
 export { default as AuthCard } from './AuthCard';
+export { default as UserDropdown } from './UserDropdown';
+export { default as BiometricButton } from './BiometricButton';
 export { default as RoleBasedAccess, AdminOnly, ClientOnly, EmployeeOnly, AccountingOnly, useRoleAccess } from './RoleBasedAccess';
 
 // 🎯 Re-exportar tipos importantes
