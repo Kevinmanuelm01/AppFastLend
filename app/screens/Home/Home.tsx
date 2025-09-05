@@ -1,11 +1,11 @@
 import { COLORS } from '../../constants';
 import * as React from 'react';
-import { View, Text, StyleSheet, Alert, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, Alert, ScrollView, KeyboardAvoidingView, Platform, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { MainNavigatorParamList } from '../../constants/RoutesDefault';
-import Button from '../../components/Button/Button';
-import Input from '../../components/Button/Input';
+import { ModernButton, ModernCard } from '../../components/common';
+import { AuthInput } from '../../components/auth';
 import { isValidEmail } from '../../utils';
 import { useAuth } from '../../contexts/AuthContextSimple';
 
@@ -74,6 +74,8 @@ export function HomeScreen() {
   };
 
   return (
+    <>
+      <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -81,63 +83,105 @@ export function HomeScreen() {
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
         keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
         <View style={styles.headerContainer}>
-          <Text style={styles.title}>Welcome! 🎉</Text>
-          <Text style={styles.subtitle}>React Native Template</Text>
-          <Text style={styles.description}>
-            Sign in to access the application
-          </Text>
+          <View style={styles.welcomeSection}>
+            <Text style={styles.welcomeEmoji}>👋</Text>
+            <Text style={styles.title}>¡Bienvenido!</Text>
+            <Text style={styles.subtitle}>AppFastLend</Text>
+            <Text style={styles.description}>
+              Tu plataforma de préstamos rápida y segura
+            </Text>
+          </View>
         </View>
 
-        <View style={styles.formContainer}>
-          <Input
-            label="Email"
-            placeholder="Enter your email"
-            value={email}
-            onChangeText={setEmail}
-            error={emailError}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            containerStyle={styles.inputContainer}
-          />
+        <ModernCard variant="elevated" style={styles.loginCard}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>Iniciar Sesión</Text>
+            <Text style={styles.cardSubtitle}>
+              Accede a tu cuenta para continuar
+            </Text>
+          </View>
 
-          <Input
-            label="Password"
-            placeholder="Enter your password"
-            value={password}
-            onChangeText={setPassword}
-            error={passwordError}
-            secureTextEntry
-            containerStyle={styles.inputContainer}
-          />
+          <View style={styles.formContainer}>
+            <AuthInput
+              label="Email"
+              placeholder="tu@email.com"
+              value={email}
+              onChangeText={setEmail}
+              error={emailError}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              leftIcon={<Text style={styles.inputIcon}>📧</Text>}
+            />
 
-          <Button
-            title={isLoading ? "Signing in..." : "Sign In"}
-            onPress={handleLogin}
-            variant="primary"
-            size="large"
-            loading={isLoading}
-            disabled={isLoading}
-            style={styles.loginButton}
-          />
+            <AuthInput
+              label="Contraseña"
+              placeholder="Tu contraseña"
+              value={password}
+              onChangeText={setPassword}
+              error={passwordError}
+              isPassword
+              leftIcon={<Text style={styles.inputIcon}>🔒</Text>}
+            />
 
-          <Button
-            title="🏢 Registrar Empresa"
-            onPress={() => navigation.navigate('Company')}
-            style={[styles.loginButton, styles.companyButton]}
-          />
+            <ModernButton
+              title={isLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
+              onPress={handleLogin}
+              variant="primary"
+              size="lg"
+              isLoading={isLoading}
+              isDisabled={isLoading}
+              fullWidth
+              style={styles.loginButton}
+            />
+          </View>
+        </ModernCard>
 
-          <Button
-            title="🚪 Cerrar Sesión"
-            onPress={logout}
-            style={[styles.loginButton, styles.logoutButton]}
-          />
+        <View style={styles.actionsContainer}>
+          <ModernCard variant="outlined" style={styles.actionCard}>
+            <View style={styles.actionContent}>
+              <Text style={styles.actionIcon}>🏢</Text>
+              <View style={styles.actionText}>
+                <Text style={styles.actionTitle}>Registrar Empresa</Text>
+                <Text style={styles.actionDescription}>
+                  Registra tu empresa para acceder a préstamos
+                </Text>
+              </View>
+            </View>
+            <ModernButton
+              title="Registrar"
+              onPress={() => navigation.navigate('Company')}
+              variant="outline"
+              size="md"
+            />
+          </ModernCard>
+
+          <ModernCard variant="filled" style={styles.actionCard}>
+            <View style={styles.actionContent}>
+              <Text style={styles.actionIcon}>🚪</Text>
+              <View style={styles.actionText}>
+                <Text style={styles.actionTitle}>Cerrar Sesión</Text>
+                <Text style={styles.actionDescription}>
+                  Salir de la aplicación de forma segura
+                </Text>
+              </View>
+            </View>
+            <ModernButton
+              title="Cerrar Sesión"
+              onPress={logout}
+              variant="ghost"
+              size="md"
+            />
+          </ModernCard>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
+    </>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -145,51 +189,106 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flexGrow: 1,
-    justifyContent: 'center',
-    padding: 20,
+    padding: 24,
+    paddingTop: 60,
   },
   headerContainer: {
+    marginBottom: 32,
+  },
+  welcomeSection: {
     alignItems: 'center',
-    marginBottom: 40,
+    paddingVertical: 32,
+  },
+  welcomeEmoji: {
+    fontSize: 48,
+    marginBottom: 16,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontSize: 32,
+    fontWeight: '800',
     color: COLORS.text.primary,
-    marginBottom: 10,
+    marginBottom: 8,
     textAlign: 'center',
+    letterSpacing: -0.5,
   },
   subtitle: {
-    fontSize: 20,
-    fontWeight: '600',
+    fontSize: 24,
+    fontWeight: '700',
     color: COLORS.primary,
-    marginBottom: 15,
+    marginBottom: 12,
     textAlign: 'center',
   },
   description: {
+    fontSize: 17,
+    fontWeight: '500',
+    color: COLORS.text.secondary,
+    textAlign: 'center',
+    lineHeight: 26,
+    paddingHorizontal: 20,
+  },
+  loginCard: {
+    marginBottom: 24,
+  },
+  cardHeader: {
+    alignItems: 'center',
+    marginBottom: 32,
+    paddingBottom: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.borderLight,
+  },
+  cardTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: COLORS.text.primary,
+    marginBottom: 8,
+    letterSpacing: -0.3,
+  },
+  cardSubtitle: {
     fontSize: 16,
     color: COLORS.text.secondary,
     textAlign: 'center',
-    lineHeight: 24,
   },
   formContainer: {
-    width: '100%',
-    maxWidth: 400,
-    alignSelf: 'center',
+    gap: 4,
   },
-  inputContainer: {
-    marginBottom: 20,
+  inputIcon: {
+    fontSize: 18,
   },
   loginButton: {
-    marginTop: 10,
+    marginTop: 24,
   },
-  companyButton: {
-    backgroundColor: COLORS.secondary,
-    marginTop: 15,
+  actionsContainer: {
+    gap: 16,
   },
-  logoutButton: {
-    backgroundColor: COLORS.error,
-    marginTop: 15,
+  actionCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 20,
+  },
+  actionContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    marginRight: 16,
+  },
+  actionIcon: {
+    fontSize: 32,
+    marginRight: 16,
+  },
+  actionText: {
+    flex: 1,
+  },
+  actionTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: COLORS.text.primary,
+    marginBottom: 4,
+  },
+  actionDescription: {
+    fontSize: 14,
+    color: COLORS.text.secondary,
+    lineHeight: 20,
   },
 });
 

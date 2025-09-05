@@ -8,31 +8,31 @@ import { COLORS } from './ColorsDefault';
 
 // Tamaños de fuente
 export const FONT_SIZES = {
-  xs: 10,
-  sm: 12,
-  md: 14,
-  lg: 16,
-  xl: 18,
-  xxl: 20,
-  xxxl: 24,
+  xs: 11,
+  sm: 13,
+  md: 15,
+  lg: 17,
+  xl: 19,
+  xxl: 22,
+  xxxl: 26,
   
   // Headings
-  h1: 32,
-  h2: 28,
-  h3: 24,
-  h4: 20,
-  h5: 18,
-  h6: 16,
+  h1: 36,
+  h2: 30,
+  h3: 26,
+  h4: 22,
+  h5: 19,
+  h6: 17,
   
   // Específicos
-  subtitle: 16,
-  subtitle2: 14,
+  subtitle: 17,
+  subtitle2: 15,
   input: 16,
   body1: 16,
-  body2: 14,
+  body2: 15,
   button: 16,
-  caption: 12,
-  overline: 10,
+  caption: 13,
+  overline: 11,
   
   // Legacy
   iconAction: 24,
@@ -41,11 +41,13 @@ export const FONT_SIZES = {
 // Pesos de fuente
 export const FONT_WEIGHTS = {
   thin: '100',
+  extraLight: '200',
   light: '300',
   regular: '400',
   medium: '500',
   semibold: '600',
   bold: '700',
+  extraBold: '800',
   heavy: '800',
   black: '900',
 } as const;
