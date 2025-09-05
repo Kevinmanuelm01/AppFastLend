@@ -13,7 +13,7 @@ import {
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { AuthInput, AuthButton, AuthCard } from '../../components/auth';
+import { SimpleAuthInput, AuthButton, AuthCard } from '../../components/auth';
 import { useAuth } from '../../contexts/AuthContext';
 import { COLORS } from '../../constants';
 import { UserRole, type RegisterData } from '../../types/auth';
@@ -99,7 +99,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation, route }) =>
   );
 
   // 🎯 Contexto de autenticación
-  const { register, authState, clearError } = useAuth();
+  const { register, authState } = useAuth();
 
   // 🎯 Configuración del formulario
   const {
@@ -132,7 +132,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation, route }) =>
   const onSubmit = async (data: RegisterFormData) => {
     try {
       setIsLoading(true);
-      clearError();
+      // clearError(); // TODO: Implementar cuando esté disponible
 
       // 🔄 Preparar datos de registro
       const registerData: RegisterData = {
@@ -215,7 +215,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation, route }) =>
         </View>
 
         {/* 🃏 Card de registro */}
-        <AuthCard style={styles.card}>
+        <View style={styles.card}>
           {/* 🎭 Selector de rol */}
           <View style={styles.roleSection}>
             <Text style={styles.sectionTitle}>Tipo de Cuenta</Text>
@@ -266,7 +266,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation, route }) =>
                   control={control}
                   name="firstName"
                   render={({ field: { onChange, onBlur, value } }) => (
-                    <AuthInput
+                    <SimpleAuthInput
                       label="Nombre"
                       value={value}
                       onChangeText={onChange}
@@ -286,7 +286,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation, route }) =>
                   control={control}
                   name="lastName"
                   render={({ field: { onChange, onBlur, value } }) => (
-                    <AuthInput
+                    <SimpleAuthInput
                       label="Apellido"
                       value={value}
                       onChangeText={onChange}
@@ -307,7 +307,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation, route }) =>
               control={control}
               name="email"
               render={({ field: { onChange, onBlur, value } }) => (
-                <AuthInput
+                <SimpleAuthInput
                   label="Email"
                   value={value}
                   onChangeText={onChange}
@@ -328,7 +328,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation, route }) =>
               control={control}
               name="phone"
               render={({ field: { onChange, onBlur, value } }) => (
-                <AuthInput
+                <SimpleAuthInput
                   label="Teléfono"
                   value={value}
                   onChangeText={onChange}
@@ -349,7 +349,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation, route }) =>
               control={control}
               name="password"
               render={({ field: { onChange, onBlur, value } }) => (
-                <AuthInput
+                <SimpleAuthInput
                   label="Contraseña"
                   value={value}
                   onChangeText={onChange}
@@ -368,7 +368,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation, route }) =>
               control={control}
               name="confirmPassword"
               render={({ field: { onChange, onBlur, value } }) => (
-                <AuthInput
+                <SimpleAuthInput
                   label="Confirmar Contraseña"
                   value={value}
                   onChangeText={onChange}
@@ -427,7 +427,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation, route }) =>
                   control={control}
                   name="documentNumber"
                   render={({ field: { onChange, onBlur, value } }) => (
-                    <AuthInput
+                    <SimpleAuthInput
                       label="Número"
                       value={value}
                       onChangeText={onChange}
@@ -447,7 +447,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation, route }) =>
               control={control}
               name="dateOfBirth"
               render={({ field: { onChange, onBlur, value } }) => (
-                <AuthInput
+                <SimpleAuthInput
                   label="Fecha de Nacimiento"
                   value={value}
                   onChangeText={onChange}
@@ -507,7 +507,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation, route }) =>
               style={styles.registerButton}
             />
           </View>
-        </AuthCard>
+        </View>
 
         {/* 🔗 Link a login */}
         <View style={styles.footer}>
@@ -555,7 +555,20 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   card: {
+    backgroundColor: '#ffffff',
+    borderRadius: 20,
+    padding: 24,
     marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: '#f1f5f9',
   },
 
   // Secciones
@@ -571,31 +584,51 @@ const styles = StyleSheet.create({
 
   // Roles
   roleGrid: {
-    gap: 8,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
   },
   roleOption: {
-    padding: 16,
-    borderRadius: 12,
+    flex: 1,
+    minWidth: '45%',
+    padding: 20,
+    borderRadius: 16,
     borderWidth: 2,
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.surface,
+    borderColor: '#e2e8f0',
+    backgroundColor: '#ffffff',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   roleOptionSelected: {
     borderColor: COLORS.primary,
-    backgroundColor: `${COLORS.primary}10`,
+    backgroundColor: '#eff6ff',
+    shadowColor: COLORS.primary,
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 4,
   },
   roleLabel: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
     color: COLORS.text.primary,
-    marginBottom: 4,
+    marginBottom: 6,
+    textAlign: 'center',
   },
   roleLabelSelected: {
     color: COLORS.primary,
   },
   roleDescription: {
-    fontSize: 14,
+    fontSize: 13,
     color: COLORS.text.secondary,
+    textAlign: 'center',
+    lineHeight: 18,
   },
   roleDescriptionSelected: {
     color: COLORS.primary,
@@ -603,11 +636,11 @@ const styles = StyleSheet.create({
 
   // Formulario
   form: {
-    gap: 4,
+    gap: 16,
   },
   row: {
     flexDirection: 'row',
-    gap: 12,
+    gap: 16,
   },
   halfWidth: {
     flex: 1,
@@ -625,16 +658,17 @@ const styles = StyleSheet.create({
   },
   pickerContainer: {
     flexDirection: 'row',
-    borderRadius: 8,
+    borderRadius: 12,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: COLORS.border,
+    borderWidth: 2,
+    borderColor: '#e2e8f0',
+    backgroundColor: '#ffffff',
   },
   pickerOption: {
     flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    backgroundColor: COLORS.surface,
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    backgroundColor: '#ffffff',
     alignItems: 'center',
   },
   pickerOptionSelected: {
@@ -642,7 +676,7 @@ const styles = StyleSheet.create({
   },
   pickerText: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: '600',
     color: COLORS.text.primary,
   },
   pickerTextSelected: {
@@ -656,23 +690,28 @@ const styles = StyleSheet.create({
 
   // Términos
   termsContainer: {
-    marginVertical: 16,
+    marginVertical: 20,
+    padding: 16,
+    backgroundColor: '#f8fafc',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
   },
   termsCheckContainer: {
     flexDirection: 'row',
     alignItems: 'flex-start',
   },
   checkbox: {
-    width: 20,
-    height: 20,
+    width: 22,
+    height: 22,
     borderWidth: 2,
-    borderColor: COLORS.border,
-    borderRadius: 4,
-    marginRight: 12,
+    borderColor: '#d1d5db',
+    borderRadius: 6,
+    marginRight: 14,
     marginTop: 2,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.surface,
+    backgroundColor: '#ffffff',
   },
   checkboxChecked: {
     backgroundColor: COLORS.primary,
@@ -680,7 +719,7 @@ const styles = StyleSheet.create({
   },
   checkmark: {
     color: '#FFFFFF',
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: 'bold',
   },
   termsTextContainer: {
@@ -689,7 +728,7 @@ const styles = StyleSheet.create({
   termsText: {
     fontSize: 14,
     color: COLORS.text.secondary,
-    lineHeight: 20,
+    lineHeight: 22,
   },
   termsLink: {
     color: COLORS.primary,
@@ -731,12 +770,6 @@ const styles = StyleSheet.create({
   errorIcon: {
     fontSize: 16,
     marginRight: 8,
-  },
-  errorText: {
-    color: '#dc2626',
-    fontSize: 14,
-    flex: 1,
-    fontWeight: '500',
   },
 });
 

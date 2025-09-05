@@ -50,7 +50,7 @@ type Props = NativeStackScreenProps<AuthStackParamList, 'Profile'>;
 export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
   const { authState, logout, updateProfile, clearError } = useAuth();
   const { user, isLoading, error } = authState;
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
   const {
@@ -72,7 +72,7 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
   // 💾 Guardar cambios del perfil
   const onSubmit = async (data: ProfileFormData) => {
     try {
-      setIsLoading(true);
+      setIsSubmitting(true);
       clearError();
 
       // Actualizar el perfil
@@ -92,7 +92,7 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
         [{ text: 'OK' }]
       );
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 

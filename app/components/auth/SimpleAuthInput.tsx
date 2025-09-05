@@ -1,4 +1,4 @@
-// 📝 Componente AuthInput - Input especializado para autenticación
+// 📝 Componente SimpleAuthInput - Versión optimizada sin animaciones complejas
 
 import React, { useState, forwardRef, useImperativeHandle } from 'react';
 import {
@@ -7,13 +7,12 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  Animated,
   TextInputProps,
 } from 'react-native';
 import { COLORS } from '../../constants';
 
 // 🎯 Tipos del componente
-interface AuthInputProps extends Omit<TextInputProps, 'style'> {
+interface SimpleAuthInputProps extends Omit<TextInputProps, 'style'> {
   label: string;
   error?: string;
   leftIcon?: React.ReactNode;
@@ -28,15 +27,15 @@ interface AuthInputProps extends Omit<TextInputProps, 'style'> {
   helperText?: string;
 }
 
-export interface AuthInputRef {
+export interface SimpleAuthInputRef {
   focus: () => void;
   blur: () => void;
   clear: () => void;
   getValue: () => string;
 }
 
-// 🎨 Componente AuthInput
-const AuthInput = forwardRef<AuthInputRef, AuthInputProps>((
+// 🎨 Componente SimpleAuthInput
+const SimpleAuthInput = forwardRef<SimpleAuthInputRef, SimpleAuthInputProps>((
   {
     label,
     error,
@@ -61,11 +60,6 @@ const AuthInput = forwardRef<AuthInputRef, AuthInputProps>((
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [inputValue, setInputValue] = useState(value || '');
 
-  // 🎭 Animaciones
-  const [labelAnimation] = useState(new Animated.Value(value ? 1 : 0));
-  const [borderAnimation] = useState(new Animated.Value(0));
-  const [errorAnimation] = useState(new Animated.Value(0));
-
   // 📱 Referencia del input
   const inputRef = React.useRef<TextInput>(null);
 
@@ -80,54 +74,15 @@ const AuthInput = forwardRef<AuthInputRef, AuthInputProps>((
     getValue: () => inputValue,
   }));
 
-  // 🎨 Animación del label (optimizada)
-  const animateLabel = (toValue: number) => {
-    if (labelAnimation._value !== toValue) {
-      Animated.timing(labelAnimation, {
-        toValue,
-        duration: 150,
-        useNativeDriver: false,
-      }).start();
-    }
-  };
-
-  // 🎨 Animación del borde (optimizada)
-  const animateBorder = (toValue: number) => {
-    if (borderAnimation._value !== toValue) {
-      Animated.timing(borderAnimation, {
-        toValue,
-        duration: 150,
-        useNativeDriver: false,
-      }).start();
-    }
-  };
-
-  // 🎨 Animación del error (optimizada)
-  const animateError = (toValue: number) => {
-    if (errorAnimation._value !== toValue) {
-      Animated.timing(errorAnimation, {
-        toValue,
-        duration: 200,
-        useNativeDriver: false,
-      }).start();
-    }
-  };
-
   // 🎯 Manejar focus
   const handleFocus = () => {
     setIsFocused(true);
-    animateLabel(1);
-    animateBorder(1);
     textInputProps.onFocus?.({} as any);
   };
 
   // 🎯 Manejar blur
   const handleBlur = () => {
     setIsFocused(false);
-    if (!inputValue) {
-      animateLabel(0);
-    }
-    animateBorder(0);
     textInputProps.onBlur?.({} as any);
   };
 
@@ -135,28 +90,12 @@ const AuthInput = forwardRef<AuthInputRef, AuthInputProps>((
   const handleChangeText = (text: string) => {
     setInputValue(text);
     onChangeText?.(text);
-
-    // Optimización: Solo animar si es necesario
-    if (text && !isFocused) {
-      animateLabel(1);
-    } else if (!text && !isFocused) {
-      animateLabel(0);
-    }
   };
 
   // 🎯 Toggle visibilidad de contraseña
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
   };
-
-  // 🎨 Efectos de animación para errores (optimizado)
-  React.useEffect(() => {
-    if (error) {
-      animateError(1);
-    } else {
-      animateError(0);
-    }
-  }, [error]);
 
   // 🎨 Sincronizar valor interno con prop externo
   React.useEffect(() => {
@@ -165,51 +104,28 @@ const AuthInput = forwardRef<AuthInputRef, AuthInputProps>((
     }
   }, [value]);
 
-  // 🎨 Estilos dinámicos
-  const labelTop = labelAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [18, -8],
-  });
-
-  const labelFontSize = labelAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [16, 12],
-  });
-
-  const borderColor = borderAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [COLORS.border, COLORS.primary],
-  });
-
-  const errorOpacity = errorAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, 1],
-  });
-
-  const errorTranslateY = errorAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [-10, 0],
-  });
+  // 🎨 Determinar si el label debe estar arriba
+  const isLabelUp = isFocused || inputValue.length > 0;
 
   return (
     <View style={[styles.container, containerStyle]}>
       {/* 📝 Input Container */}
-      <Animated.View
+      <View
         style={[
           styles.inputContainer,
           {
-            borderColor: error ? COLORS.error : borderColor,
+            borderColor: error ? COLORS.error : isFocused ? COLORS.primary : COLORS.border,
             borderWidth: error ? 2 : isFocused ? 2 : 1,
           },
         ]}
       >
-        {/* 🔤 Label animado */}
-        <Animated.Text
+        {/* 🔤 Label */}
+        <Text
           style={[
             styles.label,
             {
-              top: labelTop,
-              fontSize: labelFontSize,
+              top: isLabelUp ? -8 : 18,
+              fontSize: isLabelUp ? 12 : 16,
               color: error
                 ? COLORS.error
                 : isFocused
@@ -223,7 +139,7 @@ const AuthInput = forwardRef<AuthInputRef, AuthInputProps>((
           {required && (
             <Text style={styles.required}> *</Text>
           )}
-        </Animated.Text>
+        </Text>
 
         {/* 🎯 Contenedor del input */}
         <View style={styles.inputWrapper}>
@@ -275,23 +191,15 @@ const AuthInput = forwardRef<AuthInputRef, AuthInputProps>((
             </View>
           )}
         </View>
-      </Animated.View>
+      </View>
 
       {/* ❌ Mensaje de error */}
       {error && (
-        <Animated.View
-          style={[
-            styles.errorContainer,
-            {
-              opacity: errorOpacity,
-              transform: [{ translateY: errorTranslateY }],
-            },
-          ]}
-        >
+        <View style={styles.errorContainer}>
           <Text style={[styles.errorText, errorStyle]}>
             ⚠️ {error}
           </Text>
-        </Animated.View>
+        </View>
       )}
 
       {/* 💡 Texto de ayuda */}
@@ -383,6 +291,6 @@ const styles = StyleSheet.create({
   },
 });
 
-AuthInput.displayName = 'AuthInput';
+SimpleAuthInput.displayName = 'SimpleAuthInput';
 
-export default AuthInput;
+export default SimpleAuthInput;

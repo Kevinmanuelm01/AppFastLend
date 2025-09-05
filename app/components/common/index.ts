@@ -2,4 +2,3 @@
 
 export { default as ModernCard } from './ModernCard';
 export { default as ModernButton } from './ModernButton';
-export { ModernCard, ModernButton } from './ModernCard';

@@ -52,7 +52,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const [rememberMe, setRememberMe] = useState(false);
 
   // 🎯 Contexto de autenticación
-  const { login, authState, clearError } = useAuth();
+  const { login, authState } = useAuth();
 
   // 🎯 Configuración del formulario
   const {
@@ -73,7 +73,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const onSubmit = async (data: LoginFormData) => {
     try {
       setIsLoading(true);
-      clearError();
+      // clearErrors(); // TODO: Implementar cuando esté disponible en el tipo
 
       // 🔄 Preparar credenciales
       const credentials: LoginCredentials = {
@@ -83,7 +83,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       };
 
       // 🔐 Intentar login
-      await login(credentials.email, credentials.password);
+      await login(credentials);
 
       // ✅ Login exitoso - la navegación se maneja en el contexto
       reset();
@@ -116,9 +116,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       <View style={styles.content}>
         {/* 🎨 Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>¡Bienvenido! 👋</Text>
+          <Text style={styles.title}>Iniciar Sesión 🔐</Text>
           <Text style={styles.subtitle}>
-            Inicia sesión para acceder a tu cuenta
+            Ingresa tus credenciales para acceder
           </Text>
         </View>
 
@@ -146,7 +146,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                   onBlur={onBlur}
                   error={errors.emailOrUsername?.message}
                   leftIcon={<Text style={styles.inputIcon}>👤</Text>}
-                  placeholder="Ingresa tu email o usuario"
+                  placeholder="tu@email.com"
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoCorrect={false}
@@ -167,7 +167,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                   onBlur={onBlur}
                   error={errors.password?.message}
                   leftIcon={<Text style={styles.inputIcon}>🔒</Text>}
-                  placeholder="Ingresa tu contraseña"
+                  placeholder="Tu contraseña"
                   isPassword
                   required
                 />
@@ -216,12 +216,12 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
         {/* 🔗 Link a registro */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>¿No tienes una cuenta? </Text>
+          <Text style={styles.footerText}>¿Eres nuevo? </Text>
           <TouchableOpacity
             onPress={navigateToRegister}
             activeOpacity={0.7}
           >
-            <Text style={styles.registerLink}>Regístrate aquí</Text>
+            <Text style={styles.registerLink}>Crear cuenta</Text>
           </TouchableOpacity>
         </View>
       </View>
