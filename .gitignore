@@ -77,3 +77,4 @@ yarn.lock
 vendor/
 
 Gemfile.lock
+.env
